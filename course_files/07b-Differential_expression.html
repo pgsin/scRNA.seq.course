@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>0.1 Differential Expression (DE) analysis | 07b-Differential_expression.utf8</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="0.1 Differential Expression (DE) analysis | 07b-Differential_expression.utf8" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="0.1 Differential Expression (DE) analysis | 07b-Differential_expression.utf8" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<!-- for Facebook -->  
+<meta property="og:url" content="http://hemberg-lab.github.io/scRNA.seq.course/" />
+<meta property="og:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta property="og:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- for Twitter -->          
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Analysis of single-cell RNA-seq data" />
+<meta name="twitter:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta name="twitter:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- Google Analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-71525309-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-71525309-1');
+</script>
+
+<!-- For Logo -->
+<script>
+  $(document).ready(function(){
+    $(".book-header").prepend('<img id="SangerLogo" src="figures/sanger-logo-header.png" />')
+  }
+</script>
+
+<script>
+  $(document).ready(function(){
+    $('.book-header').wrap( $('<a>').attr('href', 'https://www.sanger.ac.uk/').attr('target', '_blank'))
+  });
+</script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="index.html">Table of Contents</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="0.1" data-path=""><a href="#dechapter"><i class="fa fa-check"></i><b>0.1</b> Differential Expression (DE) analysis</a>
+<ul>
+<li class="chapter" data-level="0.1.1" data-path=""><a href="#bulk-rna-seq"><i class="fa fa-check"></i><b>0.1.1</b> Bulk RNA-seq</a></li>
+<li class="chapter" data-level="0.1.2" data-path=""><a href="#single-cell-rna-seq"><i class="fa fa-check"></i><b>0.1.2</b> Single cell RNA-seq</a></li>
+<li class="chapter" data-level="0.1.3" data-path=""><a href="#differences-in-distribution"><i class="fa fa-check"></i><b>0.1.3</b> Differences in Distribution</a></li>
+<li class="chapter" data-level="0.1.4" data-path=""><a href="#models-of-single-cell-rna-seq-data"><i class="fa fa-check"></i><b>0.1.4</b> Models of single-cell RNA-seq data</a></li>
+</ul></li>
+<li class="chapter" data-level="0.2" data-path=""><a href="#de-in-a-real-dataset"><i class="fa fa-check"></i><b>0.2</b> DE in a real dataset</a>
+<ul>
+<li class="chapter" data-level="0.2.1" data-path=""><a href="#introduction"><i class="fa fa-check"></i><b>0.2.1</b> Introduction</a></li>
+<li class="chapter" data-level="0.2.2" data-path=""><a href="#kolmogorov-smirnov-test"><i class="fa fa-check"></i><b>0.2.2</b> Kolmogorov-Smirnov test</a></li>
+<li class="chapter" data-level="0.2.3" data-path=""><a href="#wilcoxmann-whitney-u-test"><i class="fa fa-check"></i><b>0.2.3</b> Wilcox/Mann-Whitney-U Test</a></li>
+<li class="chapter" data-level="0.2.4" data-path=""><a href="#edger"><i class="fa fa-check"></i><b>0.2.4</b> edgeR</a></li>
+<li class="chapter" data-level="0.2.5" data-path=""><a href="#monocle"><i class="fa fa-check"></i><b>0.2.5</b> Monocle</a></li>
+<li class="chapter" data-level="0.2.6" data-path=""><a href="#mast"><i class="fa fa-check"></i><b>0.2.6</b> MAST</a></li>
+<li class="chapter" data-level="0.2.7" data-path=""><a href="#slow-methods-1h-to-run"><i class="fa fa-check"></i><b>0.2.7</b> Slow Methods (&gt;1h to run)</a></li>
+<li class="chapter" data-level="0.2.8" data-path=""><a href="#bpsc"><i class="fa fa-check"></i><b>0.2.8</b> BPSC</a></li>
+<li class="chapter" data-level="0.2.9" data-path=""><a href="#scde"><i class="fa fa-check"></i><b>0.2.9</b> SCDE</a></li>
+<li class="chapter" data-level="0.2.10" data-path=""><a href="#sessioninfo"><i class="fa fa-check"></i><b>0.2.10</b> sessionInfo()</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="http://www.sanger.ac.uk/science/groups/hemberg-group" target="blank">Hemberg Lab</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<div id="dechapter" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Differential Expression (DE) analysis</h2>
+<div id="bulk-rna-seq" class="section level3" number="0.1.1">
+<h3><span class="header-section-number">0.1.1</span> Bulk RNA-seq</h3>
+<p>One of the most common types of analyses when working with bulk RNA-seq data is to identify differentially expressed genes. By comparing the genes that change between two conditions, e.g. mutant and wild-type or stimulated and unstimulated, it is possible to characterize the molecular mechanisms underlying the change.</p>
+<p>Several different methods, e.g. <a href="https://bioconductor.org/packages/DESeq2">DESeq2</a> and <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html">edgeR</a>,
+have been developed for bulk RNA-seq. Moreover, there are also extensive <a href="http://genomebiology.biomedcentral.com/articles/10.1186/gb-2013-14-9-r95">datasets</a> available where the RNA-seq data has been validated using RT-qPCR. These data can be used to benchmark DE finding algorithms and the available evidence suggests that the algorithms are performing quite well.</p>
+</div>
+<div id="single-cell-rna-seq" class="section level3" number="0.1.2">
+<h3><span class="header-section-number">0.1.2</span> Single cell RNA-seq</h3>
+<p>In contrast to bulk RNA-seq, in scRNA-seq we usually do not have a defined set of experimental conditions. Instead, as was shown in a previous chapter (<a href="#clust-methods"><strong>??</strong></a>) we can identify the cell groups by using an unsupervised clustering approach. Once the groups have been identified one can find differentially expressed genes either by comparing the differences in variance between the groups (like the Kruskal-Wallis test implemented in SC3), or by comparing gene expression between clusters in a pairwise manner. In the following chapter we will mainly consider tools developed for pairwise comparisons.</p>
+</div>
+<div id="differences-in-distribution" class="section level3" number="0.1.3">
+<h3><span class="header-section-number">0.1.3</span> Differences in Distribution</h3>
+<p>Unlike bulk RNA-seq, we generally have a large number of samples (i.e. cells) for each group we are comparing in single-cell experiments. Thus we can take advantage of the whole distribution of expression values in each group to identify differences between groups rather than only comparing estimates of mean-expression as is standard for bulk RNASeq.</p>
+<p>There are two main approaches to comparing distributions. Firstly, we can use existing statistical models/distributions and fit the same type of model to the expression in each group then test for differences in the parameters for each model, or test whether the model fits better if a particular paramter is allowed to be different according to group. For instance in Chapter <a href="#dealing-with-confounders"><strong>??</strong></a> we used <code>edgeR</code> to test whether allowing mean expression to be different in different batches significantly improved the fit of a negative binomial model of the data.</p>
+<p>Alternatively, we can use a non-parametric test which does not assume that expression values follow any particular distribution, e.g. the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test (KS-test)</a>. Non-parametric tests generally convert observed expression values to ranks and test whether the distribution of ranks for one group are signficantly different from the distribution of ranks for the other group. However, some non-parametric methods fail in the presence of a large number of tied values, such as the case for dropouts (zeros) in single-cell RNA-seq expression data. Moreover, if the conditions for a parametric test hold, then it will typically be more powerful than a non-parametric test.</p>
+</div>
+<div id="models-of-single-cell-rna-seq-data" class="section level3" number="0.1.4">
+<h3><span class="header-section-number">0.1.4</span> Models of single-cell RNA-seq data</h3>
+<p>The most common model of scRNA-seq data is the negative binomial model:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnbinom</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1000</span>, </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">mu =</span> <span class="dv">10</span>, </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">100</span>), </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">&quot;grey50&quot;</span>, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">&quot;Read Counts&quot;</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">&quot;Negative Binomial&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-intro1"></span>
+<img src="07b-Differential_expression_files/figure-html/de-intro1-1.png" alt="Negative Binomial distribution of read counts for a single gene across 1000 cells" width="672" />
+<p class="caption">
+Figure 1: Negative Binomial distribution of read counts for a single gene across 1000 cells
+</p>
+</div>
+<p>Mean:
+<span class="math inline">\(\mu = mu\)</span></p>
+<p>Variance:
+<span class="math inline">\(\sigma^2 = mu + mu^2/size\)</span></p>
+<p>It is parameterized by the mean expression (mu) and the dispersion (size), which is inversely related to the variance. The negative binomial model fits bulk RNA-seq data very well and it is used for most statistical methods designed for such data. In addition, it has been show to fit the distribution of molecule counts obtained from data tagged by unique molecular identifiers (UMIs) quite well (<a href="http://www.nature.com/nmeth/journal/v11/n6/full/nmeth.2930.html">Grun et al. 2014</a>, <a href="http://genome.cshlp.org/content/21/7/1160">Islam et al. 2011</a>).</p>
+<p>However, a raw negative binomial model does not fit full-length transcript data as well due to the high dropout rates relative to the non-zero read counts. For this type of data a variety of zero-inflated negative binomial models have been proposed (e.g. <a href="https://bioconductor.org/packages/release/bioc/html/MAST.html">MAST</a>, <a href="https://bioconductor.org/packages/release/bioc/html/scde.html">SCDE</a>).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fl">0.5</span>;</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">rnbinom</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1000</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu =</span> <span class="dv">10</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">100</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>counts[<span class="fu">runif</span>(<span class="dv">1000</span>) <span class="sc">&lt;</span> d] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    counts, </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">&quot;grey50&quot;</span>, </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">&quot;Read Counts&quot;</span>, </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">&quot;Zero-inflated NB&quot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-intro2"></span>
+<img src="07b-Differential_expression_files/figure-html/de-intro2-1.png" alt="Zero-inflated Negative Binomial distribution" width="672" />
+<p class="caption">
+Figure 2: Zero-inflated Negative Binomial distribution
+</p>
+</div>
+<p>Mean:
+<span class="math inline">\(\mu = mu \cdot (1 - d)\)</span></p>
+<p>Variance:
+<span class="math inline">\(\sigma^2 = \mu \cdot (1-d) \cdot (1 + d \cdot \mu + \mu / size)\)</span></p>
+<p>These models introduce a new parameter <span class="math inline">\(d\)</span>, for the dropout rate, to the negative binomial model. As we saw in Chapter 19, the dropout rate of a gene is strongly correlated with the mean expression of the gene. Different zero-inflated negative binomial models use different relationships between mu and d and some may fit <span class="math inline">\(\mu\)</span> and <span class="math inline">\(d\)</span> to the expression of each gene independently.</p>
+<p>Finally, several methods use a Poisson-Beta distribution which is based on a mechanistic model of transcriptional bursting. There is strong experimental support for this model (<a href="https://genomebiology.biomedcentral.com/articles/10.1186/gb-2013-14-1-r7">Kim and Marioni, 2013</a>) and it provides a good fit to scRNA-seq data but it is less easy to use than the negative-binomial models and much less existing methods upon which to build than the negative binomial model.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>lambdas <span class="ot">&lt;-</span> <span class="fu">rbeta</span>(<span class="dv">1000</span>, a, b)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(g<span class="sc">*</span>lambdas, <span class="cf">function</span>(l) {<span class="fu">rpois</span>(<span class="dv">1</span>, <span class="at">lambda =</span> l)})</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    counts, </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">&quot;grey50&quot;</span>, </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">&quot;Read Counts&quot;</span>, </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">&quot;Poisson-Beta&quot;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="07b-Differential_expression_files/figure-html/de-intro3,%20pois-beta-plot-1.png" width="672" style="display: block; margin: auto;" />
+Mean:
+<span class="math inline">\(\mu = g \cdot a / (a + b)\)</span></p>
+<p>Variance:
+<span class="math inline">\(\sigma^2 = g^2 \cdot a \cdot b/((a + b + 1) \cdot (a + b)^2)\)</span></p>
+<p>This model uses three parameters: <span class="math inline">\(a\)</span> the rate of activation of transcription; <span class="math inline">\(b\)</span> the rate of inhibition of transcription; and <span class="math inline">\(g\)</span> the rate of transcript production while transcription is active at the locus. Differential expression methods may test each of the parameters for differences across groups or only one (often <span class="math inline">\(g\)</span>).</p>
+<p>All of these models may be further expanded to explicitly account for other sources of gene expression differences such as batch-effect or library depth depending on the particular DE algorithm.</p>
+<p><strong>Exercise</strong>: Vary the parameters of each distribution to explore how they affect the distribution of gene expression. How similar are the Poisson-Beta and Negative Binomial models?</p>
+</div>
+</div>
+<div id="de-in-a-real-dataset" class="section level2" number="0.2">
+<h2><span class="header-section-number">0.2</span> DE in a real dataset</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scRNA.seq.funcs)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(edgeR)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(monocle)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MAST)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ROCR)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span></code></pre></div>
+<div id="introduction" class="section level3" number="0.2.1">
+<h3><span class="header-section-number">0.2.1</span> Introduction</h3>
+<p>To test different single-cell differential expression methods we will be using the Blischak dataset from Chapters 7-17.
+For this experiment bulk RNA-seq data for each cell-line was generated in addition to single-cell data. We will use the
+differentially expressed genes identified using standard methods on the respective bulk data as the ground truth for evaluating the
+accuracy of each single-cell method. To save time we have pre-computed these for you. You can run the commands below to load these data.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>DE <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tung/TPs.txt&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>notDE <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tung/TNs.txt&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>GroundTruth <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">DE =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(DE)), </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">notDE =</span> <span class="fu">as.character</span>(<span class="fu">unlist</span>(notDE))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>This ground truth has been produce for the comparison of individual NA19101 to NA19239. Now load the respective single-cell data:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>molecules <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tung/molecules.txt&quot;</span>, <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\t</span><span class="st">&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>anno <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tung/annotation.txt&quot;</span>, <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\t</span><span class="st">&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>keep <span class="ot">&lt;-</span> anno[,<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;NA19101&quot;</span> <span class="sc">|</span> anno[,<span class="dv">1</span>] <span class="sc">==</span> <span class="st">&quot;NA19239&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> molecules[,keep]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>group <span class="ot">&lt;-</span> anno[keep,<span class="dv">1</span>]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>batch <span class="ot">&lt;-</span> anno[keep,<span class="dv">4</span>]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># remove genes that aren&#39;t expressed in at least 6 cells</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>gkeep <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(data <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">&gt;</span> <span class="dv">5</span>;</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">&lt;-</span> data[gkeep,]</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Library size normalization</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>lib_size <span class="ot">=</span> <span class="fu">colSums</span>(counts)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>norm <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">t</span>(counts)<span class="sc">/</span>lib_size <span class="sc">*</span> <span class="fu">median</span>(lib_size)) </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Variant of CPM for datasets with library sizes of fewer than 1 mil molecules</span></span></code></pre></div>
+<p>Now we will compare various single-cell DE methods. Note that we will only be running methods which are available as R-packages and run relatively quickly.</p>
+</div>
+<div id="kolmogorov-smirnov-test" class="section level3" number="0.2.2">
+<h3><span class="header-section-number">0.2.2</span> Kolmogorov-Smirnov test</h3>
+<p>The types of test that are easiest to work with are non-parametric
+ones. The most commonly used non-parametric test is the
+<a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test</a> (KS-test) and we can use it to compare the distributions for each gene in the two individuals.</p>
+<p>The KS-test quantifies the distance between the empirical cummulative distributions of the expression of each gene in each of the two populations. It is sensitive to changes in mean experession and changes in variability. However it assumes data is continuous and may perform poorly when data contains a large number of identical values (eg. zeros). Another issue with the KS-test is that it can be very sensitive for large sample sizes and thus it may end up as significant even though the magnitude of the difference is very small.</p>
+<div class="figure" style="text-align: center"><span id="fig:de-real4"></span>
+<img src="figures/KS2_Example.png" alt="Illustration of the two-sample Kolmogorov–Smirnov statistic. Red and blue lines each correspond to an empirical distribution function, and the black arrow is the two-sample KS statistic. (taken from [here](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test))" width="60%" />
+<p class="caption">
+Figure 3: Illustration of the two-sample Kolmogorov–Smirnov statistic. Red and blue lines each correspond to an empirical distribution function, and the black arrow is the two-sample KS statistic. (taken from <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">here</a>)
+</p>
+</div>
+<p>Now run the test:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    norm, <span class="dv">1</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ks.test</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            x[group <span class="sc">==</span> <span class="st">&quot;NA19101&quot;</span>], </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            x[group <span class="sc">==</span> <span class="st">&quot;NA19239&quot;</span>]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        )<span class="sc">$</span>p.value</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># multiple testing correction</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(pVals, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)</span></code></pre></div>
+<p>This code “applies” the function to each row (specified by 1) of the expression matrix, data. In the function we are returning just the p.value from the ks.test output. We can now consider how many of the ground truth positive and negative DE genes are detected by the KS-test:</p>
+<div id="evaluating-accuracy" class="section level4" number="0.2.2.1">
+<h4><span class="header-section-number">0.2.2.1</span> Evaluating Accuracy</h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sigDE <span class="ot">&lt;-</span> <span class="fu">names</span>(pVals)[pVals <span class="sc">&lt;</span> <span class="fl">0.05</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(sigDE) </span></code></pre></div>
+<pre><code>## [1] 5095</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of KS-DE genes</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(GroundTruth<span class="sc">$</span>DE <span class="sc">%in%</span> sigDE) </span></code></pre></div>
+<pre><code>## [1] 792</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of KS-DE genes that are true DE genes</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(GroundTruth<span class="sc">$</span>notDE <span class="sc">%in%</span> sigDE)</span></code></pre></div>
+<pre><code>## [1] 3190</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of KS-DE genes that are truly not-DE</span></span></code></pre></div>
+<p>As you can see many more of our ground truth negative genes were identified as DE by the KS-test (false positives) than ground truth positive genes (true positives), however this may be due to the larger number of notDE genes thus we typically normalize these counts as the True positive rate (TPR), TP/(TP + FN), and False positive rate (FPR), FP/(FP+TP).</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tp <span class="ot">&lt;-</span> <span class="fu">sum</span>(GroundTruth<span class="sc">$</span>DE <span class="sc">%in%</span> sigDE)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fp <span class="ot">&lt;-</span> <span class="fu">sum</span>(GroundTruth<span class="sc">$</span>notDE <span class="sc">%in%</span> sigDE)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>tn <span class="ot">&lt;-</span> <span class="fu">sum</span>(GroundTruth<span class="sc">$</span>notDE <span class="sc">%in%</span> <span class="fu">names</span>(pVals)[pVals <span class="sc">&gt;=</span> <span class="fl">0.05</span>])</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>fn <span class="ot">&lt;-</span> <span class="fu">sum</span>(GroundTruth<span class="sc">$</span>DE <span class="sc">%in%</span> <span class="fu">names</span>(pVals)[pVals <span class="sc">&gt;=</span> <span class="fl">0.05</span>])</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>tpr <span class="ot">&lt;-</span> tp<span class="sc">/</span>(tp <span class="sc">+</span> fn)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>fpr <span class="ot">&lt;-</span> fp<span class="sc">/</span>(fp <span class="sc">+</span> tn)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">c</span>(tpr, fpr))</span></code></pre></div>
+<pre><code>## 0.7346939 0.2944706</code></pre>
+<p>Now we can see the TPR is much higher than the FPR indicating the KS test is identifying DE genes.</p>
+<p>So far we’ve only evaluated the performance at a single significance threshold. Often it is informative to vary the threshold and evaluate performance across a range of values. This is then plotted as a receiver-operating-characteristic curve (ROC) and a general accuracy statistic can be calculated as the area under this curve (AUC). We will use the ROCR package to facilitate this plotting.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only consider genes for which we know the ground truth</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> pVals[<span class="fu">names</span>(pVals) <span class="sc">%in%</span> GroundTruth<span class="sc">$</span>DE <span class="sc">|</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>               <span class="fu">names</span>(pVals) <span class="sc">%in%</span> GroundTruth<span class="sc">$</span>notDE] </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> <span class="fu">length</span>(pVals));</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>truth[<span class="fu">names</span>(pVals) <span class="sc">%in%</span> GroundTruth<span class="sc">$</span>DE] <span class="ot">=</span> <span class="dv">0</span>;</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> ROCR<span class="sc">::</span><span class="fu">prediction</span>(pVals, truth)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>perf <span class="ot">&lt;-</span> ROCR<span class="sc">::</span><span class="fu">performance</span>(pred, <span class="st">&quot;tpr&quot;</span>, <span class="st">&quot;fpr&quot;</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>ROCR<span class="sc">::</span><span class="fu">plot</span>(perf)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-real8"></span>
+<img src="07b-Differential_expression_files/figure-html/de-real8-1.png" alt="ROC curve for KS-test." width="672" />
+<p class="caption">
+Figure 4: ROC curve for KS-test.
+</p>
+</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>aucObj <span class="ot">&lt;-</span> ROCR<span class="sc">::</span><span class="fu">performance</span>(pred, <span class="st">&quot;auc&quot;</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>aucObj<span class="sc">@</span>y.values[[<span class="dv">1</span>]] <span class="co"># AUC</span></span></code></pre></div>
+<pre><code>## [1] 0.7954796</code></pre>
+<p>Finally to facilitate the comparisons of other DE methods let’s put this code into a function so we don’t need to repeat it:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>DE_Quality_AUC <span class="ot">&lt;-</span> <span class="cf">function</span>(pVals) {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    pVals <span class="ot">&lt;-</span> pVals[<span class="fu">names</span>(pVals) <span class="sc">%in%</span> GroundTruth<span class="sc">$</span>DE <span class="sc">|</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">names</span>(pVals) <span class="sc">%in%</span> GroundTruth<span class="sc">$</span>notDE]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    truth <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> <span class="fu">length</span>(pVals));</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    truth[<span class="fu">names</span>(pVals) <span class="sc">%in%</span> GroundTruth<span class="sc">$</span>DE] <span class="ot">=</span> <span class="dv">0</span>;</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    pred <span class="ot">&lt;-</span> ROCR<span class="sc">::</span><span class="fu">prediction</span>(pVals, truth)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    perf <span class="ot">&lt;-</span> ROCR<span class="sc">::</span><span class="fu">performance</span>(pred, <span class="st">&quot;tpr&quot;</span>, <span class="st">&quot;fpr&quot;</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    ROCR<span class="sc">::</span><span class="fu">plot</span>(perf)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    aucObj <span class="ot">&lt;-</span> ROCR<span class="sc">::</span><span class="fu">performance</span>(pred, <span class="st">&quot;auc&quot;</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(aucObj<span class="sc">@</span>y.values[[<span class="dv">1</span>]])</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+</div>
+<div id="wilcoxmann-whitney-u-test" class="section level3" number="0.2.3">
+<h3><span class="header-section-number">0.2.3</span> Wilcox/Mann-Whitney-U Test</h3>
+<p>The Wilcox-rank-sum test is another non-parametric test, but tests specifically if values in one group are greater/less than the values in the other group. Thus it is often considered a test for difference in median expression between two groups; whereas the KS-test is sensitive to any change in distribution of expression values.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    norm, <span class="dv">1</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">wilcox.test</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>            x[group <span class="sc">==</span> <span class="st">&quot;NA19101&quot;</span>], </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            x[group <span class="sc">==</span> <span class="st">&quot;NA19239&quot;</span>]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        )<span class="sc">$</span>p.value</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># multiple testing correction</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(pVals, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">DE_Quality_AUC</span>(pVals)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-real10"></span>
+<img src="07b-Differential_expression_files/figure-html/de-real10-1.png" alt="ROC curve for Wilcox test." width="672" />
+<p class="caption">
+Figure 5: ROC curve for Wilcox test.
+</p>
+</div>
+<pre><code>## [1] 0.8320326</code></pre>
+</div>
+<div id="edger" class="section level3" number="0.2.4">
+<h3><span class="header-section-number">0.2.4</span> edgeR</h3>
+<p>We’ve already used edgeR for differential expression in Chapter <a href="#dealing-with-confounders"><strong>??</strong></a>. edgeR is based on a negative binomial model of gene expression and uses a generalized linear model (GLM) framework, the enables us to include other factors such as batch to the model.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dge <span class="ot">&lt;-</span> <span class="fu">DGEList</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">counts =</span> counts, </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">norm.factors =</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(counts[<span class="dv">1</span>,])), </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">group =</span> group</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>group_edgeR <span class="ot">&lt;-</span> <span class="fu">factor</span>(group)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> group_edgeR)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>dge <span class="ot">&lt;-</span> <span class="fu">estimateDisp</span>(dge, <span class="at">design =</span> design, <span class="at">trend.method =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">glmFit</span>(dge, design)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">glmLRT</span>(fit)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> res<span class="sc">$</span>table[,<span class="dv">4</span>]</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pVals) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(res<span class="sc">$</span>table)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(pVals, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="fu">DE_Quality_AUC</span>(pVals)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-real11"></span>
+<img src="07b-Differential_expression_files/figure-html/de-real11-1.png" alt="ROC curve for edgeR." width="672" />
+<p class="caption">
+Figure 6: ROC curve for edgeR.
+</p>
+</div>
+<pre><code>## [1] 0.8466764</code></pre>
+</div>
+<div id="monocle" class="section level3" number="0.2.5">
+<h3><span class="header-section-number">0.2.5</span> Monocle</h3>
+<p><a href="https://bioconductor.org/packages/release/bioc/html/monocle.html">Monocle</a> can use several different models for DE. For count data it recommends the Negative Binomial model (negbinomial.size). For normalized data it recommends log-transforming it then using a normal distribution (gaussianff). Similar to edgeR this method uses a GLM framework so in theory can account for batches, however in practice the model fails for this dataset if batches are included.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>pd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">group =</span> group, <span class="at">batch =</span> batch)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(pd) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(counts)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>pd <span class="ot">&lt;-</span> <span class="fu">new</span>(<span class="st">&quot;AnnotatedDataFrame&quot;</span>, <span class="at">data =</span> pd)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>Obj <span class="ot">&lt;-</span> <span class="fu">newCellDataSet</span>(</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.matrix</span>(counts), </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">phenoData =</span> pd, </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">expressionFamily =</span> <span class="fu">negbinomial.size</span>()</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>Obj <span class="ot">&lt;-</span> <span class="fu">estimateSizeFactors</span>(Obj)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>Obj <span class="ot">&lt;-</span> <span class="fu">estimateDispersions</span>(Obj)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">differentialGeneTest</span>(Obj, <span class="at">fullModelFormulaStr =</span> <span class="st">&quot;~group&quot;</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> res[,<span class="dv">3</span>]</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pVals) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(res)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(pVals, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="fu">DE_Quality_AUC</span>(pVals)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-real12"></span>
+<img src="07b-Differential_expression_files/figure-html/de-real12-1.png" alt="ROC curve for Monocle." width="672" />
+<p class="caption">
+Figure 7: ROC curve for Monocle.
+</p>
+</div>
+<pre><code>## [1] 0.8252662</code></pre>
+<p><strong>Exercise</strong>: Compare the results using the negative binomial model on counts and those from using the normal/gaussian model (<code>gaussianff()</code>) on log-transformed normalized counts.</p>
+<strong>Answer</strong>:
+<div class="figure" style="text-align: center"><span id="fig:de-real13"></span>
+<img src="07b-Differential_expression_files/figure-html/de-real13-1.png" alt="ROC curve for Monocle-gaussian." width="672" />
+<p class="caption">
+Figure 8: ROC curve for Monocle-gaussian.
+</p>
+</div>
+<pre><code>## [1] 0.8294642</code></pre>
+</div>
+<div id="mast" class="section level3" number="0.2.6">
+<h3><span class="header-section-number">0.2.6</span> MAST</h3>
+<p><a href="https://bioconductor.org/packages/release/bioc/html/MAST.html">MAST</a> is based on a zero-inflated negative binomial model. It tests for differential expression using a hurdle model to combine tests of discrete (0 vs not zero) and continuous (non-zero values) aspects of gene expression. Again this uses a linear modelling framework to enable complex models to be considered.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>log_counts <span class="ot">&lt;-</span> <span class="fu">log</span>(counts <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">log</span>(<span class="dv">2</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>fData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">names =</span> <span class="fu">rownames</span>(log_counts))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(fData) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(log_counts);</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>cData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">cond =</span> group)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cData) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(log_counts)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">FromMatrix</span>(<span class="fu">as.matrix</span>(log_counts), cData, fData)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colData</span>(obj)<span class="sc">$</span>cngeneson <span class="ot">&lt;-</span> <span class="fu">scale</span>(<span class="fu">colSums</span>(<span class="fu">assay</span>(obj) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>cond <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">colData</span>(obj)<span class="sc">$</span>cond)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Model expression as function of condition &amp; number of detected genes</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>zlmCond <span class="ot">&lt;-</span> <span class="fu">zlm</span>(<span class="sc">~</span> cond <span class="sc">+</span> cngeneson, obj) </span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>summaryCond <span class="ot">&lt;-</span> <span class="fu">summary</span>(zlmCond, <span class="at">doLRT =</span> <span class="st">&quot;condNA19239&quot;</span>)</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>summaryDt <span class="ot">&lt;-</span> summaryCond<span class="sc">$</span>datatable</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>summaryDt <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(summaryDt)</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">unlist</span>(summaryDt[summaryDt<span class="sc">$</span>component <span class="sc">==</span> <span class="st">&quot;H&quot;</span>,<span class="dv">4</span>]) <span class="co"># H = hurdle model</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pVals) <span class="ot">&lt;-</span> <span class="fu">unlist</span>(summaryDt[summaryDt<span class="sc">$</span>component <span class="sc">==</span> <span class="st">&quot;H&quot;</span>,<span class="dv">1</span>])</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(pVals, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="fu">DE_Quality_AUC</span>(pVals)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:de-real14"></span>
+<img src="07b-Differential_expression_files/figure-html/de-real14-1.png" alt="ROC curve for MAST." width="672" />
+<p class="caption">
+Figure 9: ROC curve for MAST.
+</p>
+</div>
+<pre><code>## [1] 0.8284046</code></pre>
+</div>
+<div id="slow-methods-1h-to-run" class="section level3" number="0.2.7">
+<h3><span class="header-section-number">0.2.7</span> Slow Methods (&gt;1h to run)</h3>
+<p>These methods are too slow to run today but we encourage you to try them out on your own:</p>
+</div>
+<div id="bpsc" class="section level3" number="0.2.8">
+<h3><span class="header-section-number">0.2.8</span> BPSC</h3>
+<p><a href="https://academic.oup.com/bioinformatics/article/32/14/2128/2288270/Beta-Poisson-model-for-single-cell-RNA-seq-data">BPSC</a> uses the Poisson-Beta model of single-cell gene expression, which we discussed in the previous chapter, and combines it with generalized linear models which we’ve already encountered when using edgeR. BPSC performs comparisons of one or more groups to a reference group (“control”) and can include other factors such as batches in the model.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BPSC)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>bpsc_data <span class="ot">&lt;-</span> norm[,batch<span class="sc">==</span><span class="st">&quot;NA19101.r1&quot;</span> <span class="sc">|</span> batch<span class="sc">==</span><span class="st">&quot;NA19239.r1&quot;</span>]</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>bpsc_group <span class="ot">=</span> group[batch<span class="sc">==</span><span class="st">&quot;NA19101.r1&quot;</span> <span class="sc">|</span> batch<span class="sc">==</span><span class="st">&quot;NA19239.r1&quot;</span>]</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>control_cells <span class="ot">&lt;-</span> <span class="fu">which</span>(bpsc_group <span class="sc">==</span> <span class="st">&quot;NA19101&quot;</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>bpsc_group)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>coef<span class="ot">=</span><span class="dv">2</span> <span class="co"># group label</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>res<span class="ot">=</span><span class="fu">BPglm</span>(<span class="at">data=</span>bpsc_data, <span class="at">controlIds=</span>control_cells, <span class="at">design=</span>design, <span class="at">coef=</span>coef, </span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">estIntPar=</span><span class="cn">FALSE</span>, <span class="at">useParallel =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">=</span> res<span class="sc">$</span>PVAL</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(pVals, <span class="at">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="fu">DE_Quality_AUC</span>(pVals)</span></code></pre></div>
+</div>
+<div id="scde" class="section level3" number="0.2.9">
+<h3><span class="header-section-number">0.2.9</span> SCDE</h3>
+<p><a href="http://hms-dbmi.github.io/scde/">SCDE</a> is the first single-cell specific DE method. It fits a zero-inflated negative binomial model to expression data using Bayesian statistics. The usage below tests for differences in mean expression of individual genes across groups but recent versions include methods to test for differences in mean expression or dispersion of groups of genes, usually representing a pathway.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scde)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>cnts <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    counts,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">function</span>(x) {</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">storage.mode</span>(x) <span class="ot">&lt;-</span> <span class="st">&#39;integer&#39;</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(x)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(group) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(group)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cnts) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(group)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>o.ifm <span class="ot">&lt;-</span> scde<span class="sc">::</span><span class="fu">scde.error.models</span>(</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">counts =</span> cnts,</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">groups =</span> group,</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">n.cores =</span> <span class="dv">1</span>,</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold.segmentation =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">save.crossfit.plots =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">save.model.plots =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">min.size.entries =</span> <span class="dv">2</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> scde<span class="sc">::</span><span class="fu">scde.expression.prior</span>(</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">models =</span> o.ifm,</span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">counts =</span> cnts,</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">400</span>,</span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">show.plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>resSCDE <span class="ot">&lt;-</span> scde<span class="sc">::</span><span class="fu">scde.expression.difference</span>(</span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    o.ifm,</span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    cnts,</span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>    priors,</span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">groups =</span> group,</span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">n.randomizations =</span> <span class="dv">100</span>,</span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">n.cores =</span> <span class="dv">1</span>,</span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert Z-scores into 2-tailed p-values</span></span>
+<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a>pVals <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(resSCDE<span class="sc">$</span>cZ), <span class="at">lower.tail =</span> <span class="cn">FALSE</span>) <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a><span class="fu">DE_Quality_AUC</span>(pVals)</span></code></pre></div>
+</div>
+<div id="sessioninfo" class="section level3" number="0.2.10">
+<h3><span class="header-section-number">0.2.10</span> sessionInfo()</h3>
+<pre><code>## R version 4.0.4 (2021-02-15)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 20.04.1 LTS
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+##  [1] splines   stats4    parallel  stats     graphics  grDevices utils    
+##  [8] datasets  methods   base     
+## 
+## other attached packages:
+##  [1] ROCR_1.0-11                 MAST_1.16.0                
+##  [3] SingleCellExperiment_1.12.0 SummarizedExperiment_1.20.0
+##  [5] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
+##  [7] IRanges_2.24.1              S4Vectors_0.28.1           
+##  [9] MatrixGenerics_1.2.1        matrixStats_0.58.0         
+## [11] monocle_2.18.0              DDRTree_0.1.5              
+## [13] irlba_2.3.3                 VGAM_1.1-5                 
+## [15] ggplot2_3.3.4               Biobase_2.50.0             
+## [17] BiocGenerics_0.36.0         Matrix_1.3-2               
+## [19] edgeR_3.32.1                limma_3.46.0               
+## [21] scRNA.seq.funcs_0.1.0       knitr_1.31                 
+## 
+## loaded via a namespace (and not attached):
+##  [1] bitops_1.0-6           progress_1.2.2         RColorBrewer_1.1-2    
+##  [4] docopt_0.7.1           tools_4.0.4            bslib_0.2.4           
+##  [7] utf8_1.2.1             R6_2.5.0               hypergeo_1.2-13       
+## [10] DBI_1.1.1              colorspace_2.0-0       withr_2.4.1           
+## [13] prettyunits_1.1.1      tidyselect_1.1.0       gridExtra_2.3         
+## [16] moments_0.14           compiler_4.0.4         orthopolynom_1.0-5    
+## [19] DelayedArray_0.16.3    bookdown_0.22          slam_0.1-48           
+## [22] sass_0.3.1             scales_1.1.1           stringr_1.4.0         
+## [25] digest_0.6.27          rmarkdown_2.7          sparsesvd_0.2         
+## [28] XVector_0.30.0         pkgconfig_2.0.3        htmltools_0.5.1.1     
+## [31] highr_0.8              rlang_0.4.10           FNN_1.1.3             
+## [34] jquerylib_0.1.3        generics_0.1.0         combinat_0.0-8        
+## [37] jsonlite_1.7.2         dplyr_1.0.5            RCurl_1.98-1.3        
+## [40] magrittr_2.0.1         GenomeInfoDbData_1.2.4 Rcpp_1.0.6            
+## [43] munsell_0.5.0          fansi_0.4.2            abind_1.4-5           
+## [46] viridis_0.5.1          lifecycle_1.0.0        stringi_1.5.3         
+## [49] yaml_2.2.1             zlibbioc_1.36.0        MASS_7.3-53.1         
+## [52] Rtsne_0.15             plyr_1.8.6             grid_4.0.4            
+## [55] ggrepel_0.9.1          crayon_1.4.1           contfrac_1.1-12       
+## [58] lattice_0.20-41        hms_1.0.0              locfit_1.5-9.4        
+## [61] pillar_1.5.1           igraph_1.2.6           reshape2_1.4.4        
+## [64] codetools_0.2-18       glue_1.4.2             evaluate_0.14         
+## [67] data.table_1.14.0      deSolve_1.28           vctrs_0.3.6           
+## [70] gtable_0.3.0           RANN_2.6.1             purrr_0.3.4           
+## [73] assertthat_0.2.1       xfun_0.22              HSMMSingleCell_1.10.0 
+## [76] qlcMatrix_0.9.7        viridisLite_0.3.0      tibble_3.1.0          
+## [79] pheatmap_1.0.12        elliptic_1.4-0         cluster_2.1.1         
+## [82] fastICA_1.2-2          densityClust_0.3       statmod_1.4.35        
+## [85] ellipsis_0.3.1</code></pre>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "section"
+},
+"search": false
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

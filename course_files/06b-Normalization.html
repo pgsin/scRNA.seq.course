@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>0.1 Normalization theory | 06b-Normalization.utf8</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="0.1 Normalization theory | 06b-Normalization.utf8" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="0.1 Normalization theory | 06b-Normalization.utf8" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<!-- for Facebook -->  
+<meta property="og:url" content="http://hemberg-lab.github.io/scRNA.seq.course/" />
+<meta property="og:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta property="og:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- for Twitter -->          
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Analysis of single-cell RNA-seq data" />
+<meta name="twitter:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta name="twitter:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- Google Analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-71525309-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-71525309-1');
+</script>
+
+<!-- For Logo -->
+<script>
+  $(document).ready(function(){
+    $(".book-header").prepend('<img id="SangerLogo" src="figures/sanger-logo-header.png" />')
+  }
+</script>
+
+<script>
+  $(document).ready(function(){
+    $('.book-header').wrap( $('<a>').attr('href', 'https://www.sanger.ac.uk/').attr('target', '_blank'))
+  });
+</script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="index.html">Table of Contents</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="0.1" data-path=""><a href="#normalization-theory"><i class="fa fa-check"></i><b>0.1</b> Normalization theory</a>
+<ul>
+<li class="chapter" data-level="0.1.1" data-path=""><a href="#introduction"><i class="fa fa-check"></i><b>0.1.1</b> Introduction</a></li>
+<li class="chapter" data-level="0.1.2" data-path=""><a href="#library-size"><i class="fa fa-check"></i><b>0.1.2</b> Library size</a></li>
+<li class="chapter" data-level="0.1.3" data-path=""><a href="#normalisations"><i class="fa fa-check"></i><b>0.1.3</b> Normalisations</a></li>
+<li class="chapter" data-level="0.1.4" data-path=""><a href="#effectiveness"><i class="fa fa-check"></i><b>0.1.4</b> Effectiveness</a></li>
+</ul></li>
+<li class="chapter" data-level="0.2" data-path=""><a href="#normalization-practice-umi"><i class="fa fa-check"></i><b>0.2</b> Normalization practice (UMI)</a>
+<ul>
+<li class="chapter" data-level="0.2.1" data-path=""><a href="#pca-on-logcounts_raw-data"><i class="fa fa-check"></i><b>0.2.1</b> PCA on <code>logcounts_raw</code> data</a></li>
+<li class="chapter" data-level="0.2.2" data-path=""><a href="#pca-on-cpm-normalized-data"><i class="fa fa-check"></i><b>0.2.2</b> PCA on CPM-normalized data</a></li>
+<li class="chapter" data-level="0.2.3" data-path=""><a href="#pca-on-scran-normalized-data"><i class="fa fa-check"></i><b>0.2.3</b> PCA on <code>scran</code>-normalized data</a></li>
+<li class="chapter" data-level="0.2.4" data-path=""><a href="#pca-with-downsampled-data"><i class="fa fa-check"></i><b>0.2.4</b> PCA with downsampled data</a></li>
+<li class="chapter" data-level="0.2.5" data-path=""><a href="#normalisation-for-genetranscript-length"><i class="fa fa-check"></i><b>0.2.5</b> Normalisation for gene/transcript length</a></li>
+<li class="chapter" data-level="0.2.6" data-path=""><a href="#exercise"><i class="fa fa-check"></i><b>0.2.6</b> Exercise</a></li>
+<li class="chapter" data-level="0.2.7" data-path=""><a href="#sessioninfo"><i class="fa fa-check"></i><b>0.2.7</b> sessionInfo()</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="http://www.sanger.ac.uk/science/groups/hemberg-group" target="blank">Hemberg Lab</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<div id="normalization-theory" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Normalization theory</h2>
+<div id="introduction" class="section level3" number="0.1.1">
+<h3><span class="header-section-number">0.1.1</span> Introduction</h3>
+<p>In the previous chapter we identified important confounding factors and explanatory variables. <code>scater</code> allows one to account for these variables in subsequent statistical models or to condition them out using <code>normaliseExprs()</code>, if so desired. This can be done by providing a design matrix to <code>normaliseExprs()</code>. We are not covering this topic here, but you can try to do it yourself as an exercise.</p>
+<p>Instead we will explore how simple size-factor normalisations correcting for library size can remove the effects of some of the confounders and explanatory variables.</p>
+</div>
+<div id="library-size" class="section level3" number="0.1.2">
+<h3><span class="header-section-number">0.1.2</span> Library size</h3>
+<p>Library sizes vary because scRNA-seq data is often sequenced on highly multiplexed platforms the total reads which are derived from each cell may differ substantially. Some quantification methods (eg. <a href="http://cole-trapnell-lab.github.io/cufflinks/"><code>Cufflinks</code></a>, <a href="http://deweylab.github.io/RSEM/"><code>RSEM</code></a>) incorporated library size when determining gene expression estimates thus do not require this normalization.</p>
+<p>However, if another quantification method was used then library size must be corrected for by multiplying or dividing each column of the expression matrix by a “normalization factor” which is an estimate of the library size relative to the other cells. Many methods to correct for library size have been developped for bulk RNA-seq and can be equally applied to scRNA-seq (eg. <strong>UQ</strong>, <strong>SF</strong>, <strong>CPM</strong>, <strong>RPKM</strong>, <strong>FPKM</strong>, <strong>TPM</strong>).</p>
+</div>
+<div id="normalisations" class="section level3" number="0.1.3">
+<h3><span class="header-section-number">0.1.3</span> Normalisations</h3>
+<div id="cpm" class="section level4" number="0.1.3.1">
+<h4><span class="header-section-number">0.1.3.1</span> CPM</h4>
+<p>The simplest way to normalize this data is to convert it to counts per million (<strong>CPM</strong>) by dividing each column by its total then multiplying by 1,000,000. Note that spike-ins should be excluded from the calculation of total expression in order to correct for total cell RNA content, therefore we will only use endogenous genes. Example of a <strong>CPM</strong> function in <code>R</code>:</p>
+<p>One potential drawback of <strong>CPM</strong> is if your sample contains genes that are both very highly expressed and differentially expressed across the cells. In this case, the total molecules in the cell may depend of whether such genes are on/off in the cell and normalizing by total molecules may hide the differential expression of those genes and/or falsely create differential expression for the remaining genes.</p>
+<p><strong>Note</strong> <strong>RPKM</strong>, <strong>FPKM</strong> and <strong>TPM</strong> are variants on <strong>CPM</strong> which further adjust counts by the length of the respective gene/transcript.</p>
+<p>To deal with this potentiality several other measures were devised.</p>
+</div>
+<div id="relative-log-expression-rle" class="section level4" number="0.1.3.2">
+<h4><span class="header-section-number">0.1.3.2</span> Relative Log Expression (RLE)</h4>
+<p>The <strong>size factor (SF)</strong> was proposed and popularized by DESeq <span class="citation">[@Anders2010-jr]</span>. First the geometric mean of each gene across all cells is calculated. The size factor for each cell is the median across genes of the ratio of the expression to the gene’s geometric mean. A drawback to this method is that since it uses the geometric mean only genes with non-zero expression values across all cells can be used in its calculation, making it unadvisable for large low-depth scRNA-seq experiments. <code>edgeR</code> &amp; <code>scater</code> call this method <strong>RLE</strong> for “relative log expression”. Example of a <strong>SF</strong> function in <code>R</code>:</p>
+</div>
+<div id="upper-quartile-uq-normalization" class="section level4" number="0.1.3.3">
+<h4><span class="header-section-number">0.1.3.3</span> Upper Quartile (UQ) Normalization</h4>
+<p>The <strong>upperquartile (UQ)</strong> was proposed by <span class="citation">[@Bullard2010-eb]</span>. Here each column is divided by the 75% quantile of the counts for each library. Often the calculated quantile is scaled by the median across cells to keep the absolute level of expression relatively consistent. A drawback to this method is that for low-depth scRNA-seq experiments the large number of undetected genes may result in the 75% quantile being zero (or close to it). This limitation can be overcome by generalizing the idea and using a higher quantile (eg. the 99% quantile is the default in <code>scater</code>) or by excluding zeros prior to calculating the 75% quantile. Example of a <strong>UQ</strong> function in <code>R</code>:</p>
+</div>
+<div id="trimmed-mean-of-m-values-tmm" class="section level4" number="0.1.3.4">
+<h4><span class="header-section-number">0.1.3.4</span> Trimmed Mean of M-values (TMM)</h4>
+<p>Another method is called <strong>TMM</strong> is the weighted trimmed mean of M-values (to the reference) proposed by <span class="citation">[@Robinson2010-hz]</span>. The M-values in question are the gene-wise log2 fold changes between individual cells. One cell is used as the reference then the M-values for each other cell is calculated compared to this reference. These values are then trimmed by removing the top and bottom ~30%, and the average of the remaining values is calculated by weighting them to account for the effect of the log scale on variance. Each non-reference cell is multiplied by the calculated factor. Two potential issues with this method are insufficient non-zero genes left after trimming, and the assumption that most genes are not differentially expressed.</p>
+</div>
+<div id="scran" class="section level4" number="0.1.3.5">
+<h4><span class="header-section-number">0.1.3.5</span> scran</h4>
+<p><code>scran</code> package implements a variant on <strong>CPM</strong> specialized for single-cell data <span class="citation">[@L_Lun2016-pq]</span>. Briefly, this method deals with the problem of vary large numbers of zero values per cell by pooling cells together calculating a normalization factor (similar to <strong>CPM</strong>) for the sum of each pool. Since each cell is found in many different pools, cell-specific factors can be deconvoluted from the collection of pool-specific factors using linear algebraic methods.</p>
+</div>
+<div id="downsampling" class="section level4" number="0.1.3.6">
+<h4><span class="header-section-number">0.1.3.6</span> Downsampling</h4>
+<p>Finally, a simple way to correct for library size is to downsample the expression matrix so that each cell has approximately the same total number of molecules. The benefit of this method is that zero values will be introduced by the downsampling, thus eliminating any biases due to differing numbers of detected genes. However, the major drawback is that the process is not-deterministic, so each time the downsampling is run the resulting expression matrix is slightly different. Thus, often analyses must be run on multiple downsamplings to ensure results are robust. Example of a <strong>downsampling</strong> function in <code>R</code>:</p>
+</div>
+</div>
+<div id="effectiveness" class="section level3" number="0.1.4">
+<h3><span class="header-section-number">0.1.4</span> Effectiveness</h3>
+<p>To compare the efficiency of different normalization methods we will use visual inspection of <code>PCA</code> plots and calculation of cell-wise <em>relative log expression</em> via <code>scater</code>’s <code>plotRLE()</code> function. Namely, cells with many (few) reads have higher (lower) than median expression for most genes resulting in a positive (negative) <em>RLE</em> across the cell, whereas normalized cells have an <em>RLE</em> close to zero. Example of a <em>RLE</em> function in <code>R</code>:</p>
+<p><strong>Note</strong> The <strong>RLE</strong>, <strong>TMM</strong>, and <strong>UQ</strong> size-factor methods were developed for bulk RNA-seq data and, depending on the experimental context, may not be appropriate for single-cell RNA-seq data, as their underlying assumptions may be problematically violated.</p>
+<p><strong>Note</strong> <code>scater</code> acts as a wrapper for the <code>calcNormFactors</code> function from <code>edgeR</code> which implements several library size normalization methods making it easy to apply any of these methods to our data.</p>
+<p><strong>Note</strong> <code>edgeR</code> makes extra adjustments to some of the normalization methods which may result in somewhat different results than if the original methods are followed exactly, e.g. edgeR’s and scater’s “RLE” method which is based on the “size factor” used by <a href="http://bioconductor.org/packages/DESeq">DESeq</a> may give different results to the <code>estimateSizeFactorsForMatrix</code> method in the <code>DESeq</code>/<code>DESeq2</code> packages. In addition, some versions of <code>edgeR</code> will not calculate the normalization factors correctly unless <code>lib.size</code> is set at 1 for all cells.</p>
+<p><strong>Note</strong> For <strong>CPM</strong> normalisation we use <code>scater</code>’s <code>calculateCPM()</code> function. For <strong>RLE</strong>, <strong>UQ</strong> and <strong>TMM</strong> we used to use <code>scater</code>’s <code>normaliseExprs()</code> function (it is deprecated now and therefore we removed the corresponding subchapters). For <strong>scran</strong> we use <code>scran</code> package to calculate size factors (it also operates on <code>SingleCellExperiment</code> class) and <code>scater</code>’s <code>normalize()</code> to normalise the data. All these normalization functions save the results to the <code>logcounts</code> slot of the <code>SCE</code> object. For <strong>downsampling</strong> we use our own functions shown above.</p>
+</div>
+</div>
+<div id="normalization-practice-umi" class="section level2" number="0.2">
+<h2><span class="header-section-number">0.2</span> Normalization practice (UMI)</h2>
+<p>We will continue to work with the <code>tung</code> data that was used in the previous chapter.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scRNA.seq.funcs)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scater)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scran)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234567</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>umi <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tung/umi.rds&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>umi.qc <span class="ot">&lt;-</span> umi[<span class="fu">rowData</span>(umi)<span class="sc">$</span>use, <span class="sc">!</span> <span class="fu">colData</span>(umi)<span class="sc">$</span>discard]</span></code></pre></div>
+<div id="pca-on-logcounts_raw-data" class="section level3" number="0.2.1">
+<h3><span class="header-section-number">0.2.1</span> PCA on <code>logcounts_raw</code> data</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>umi.qc <span class="ot">&lt;-</span> <span class="fu">runPCA</span>(umi.qc,<span class="at">exprs_values =</span> <span class="st">&quot;logcounts_raw&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(umi.qc,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>, <span class="at">size_by =</span> <span class="st">&quot;detected&quot;</span>, <span class="at">shape_by =</span> <span class="st">&quot;individual&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm7"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm7-1.png" alt="PCA plot of the tung data" width="100%" />
+<p class="caption">
+Figure 1: PCA plot of the tung data
+</p>
+</div>
+</div>
+<div id="pca-on-cpm-normalized-data" class="section level3" number="0.2.2">
+<h3><span class="header-section-number">0.2.2</span> PCA on CPM-normalized data</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logcounts</span>(umi.qc) <span class="ot">&lt;-</span> <span class="fu">log2</span>(<span class="fu">calculateCPM</span>(umi.qc) <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(umi.qc, <span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>, <span class="at">size_by =</span> <span class="st">&quot;detected&quot;</span>, <span class="at">shape_by =</span> <span class="st">&quot;individual&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm8"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm8-1.png" alt="PCA plot of the tung data after CPM normalisation" width="100%" />
+<p class="caption">
+Figure 2: PCA plot of the tung data after CPM normalisation
+</p>
+</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRLE</span>(umi.qc, <span class="at">exprs_values =</span> <span class="st">&quot;logcounts_raw&quot;</span>,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm9-1"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm9-1.png" alt="Cell-wise RLE of the tung data" width="100%" />
+<p class="caption">
+Figure 3: Cell-wise RLE of the tung data
+</p>
+</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRLE</span>(umi.qc, <span class="at">exprs_values =</span> <span class="st">&quot;logcounts&quot;</span>,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm9-2"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm9-2.png" alt="Cell-wise RLE of the tung data" width="100%" />
+<p class="caption">
+Figure 4: Cell-wise RLE of the tung data
+</p>
+</div>
+</div>
+<div id="pca-on-scran-normalized-data" class="section level3" number="0.2.3">
+<h3><span class="header-section-number">0.2.3</span> PCA on <code>scran</code>-normalized data</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>qclust <span class="ot">&lt;-</span> <span class="fu">quickCluster</span>(umi.qc, <span class="at">min.size =</span> <span class="dv">30</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>umi.qc <span class="ot">&lt;-</span> <span class="fu">computeSumFactors</span>(umi.qc, <span class="at">sizes =</span> <span class="dv">15</span>, <span class="at">clusters =</span> qclust)</span></code></pre></div>
+<pre><code>## Warning in .guess_min_mean(x, min.mean = min.mean, BPPARAM = BPPARAM): assuming
+## UMI data when setting &#39;min.mean&#39;</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>umi.qc <span class="ot">&lt;-</span> <span class="fu">logNormCounts</span>(umi.qc) <span class="do">## normalize is defunct</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(umi.qc, <span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>,<span class="at">size_by =</span> <span class="st">&quot;detected&quot;</span>, <span class="at">shape_by =</span> <span class="st">&quot;individual&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm10"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm10-1.png" alt="PCA plot of the tung data after LSF normalisation" width="100%" />
+<p class="caption">
+Figure 5: PCA plot of the tung data after LSF normalisation
+</p>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRLE</span>(umi.qc, <span class="at">exprs_values =</span> <span class="st">&quot;logcounts_raw&quot;</span>,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm11-1"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm11-1.png" alt="Cell-wise RLE of the tung data" width="100%" />
+<p class="caption">
+Figure 6: Cell-wise RLE of the tung data
+</p>
+</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRLE</span>(umi.qc, <span class="at">exprs_values =</span> <span class="st">&quot;logcounts&quot;</span>,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm11-2"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm11-2.png" alt="Cell-wise RLE of the tung data" width="100%" />
+<p class="caption">
+Figure 7: Cell-wise RLE of the tung data
+</p>
+</div>
+<p><code>scran</code> sometimes calculates negative or zero size factors. These will completely distort the normalized expression matrix. We can check the size factors scran has computed like so:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">sizeFactors</span>(umi.qc))</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.3715  0.7678  0.9555  1.0000  1.1541  3.1352</code></pre>
+<p>For this dataset all the size factors are reasonable; we will use this normalization for further analysis. If you find <code>scran</code> has calculated negative size factors try increasing the cluster and pool sizes until they are all positive.</p>
+</div>
+<div id="pca-with-downsampled-data" class="section level3" number="0.2.4">
+<h3><span class="header-section-number">0.2.4</span> PCA with downsampled data</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logcounts</span>(umi.qc) <span class="ot">&lt;-</span> <span class="fu">log2</span>(<span class="fu">Down_Sample_Matrix</span>(<span class="fu">counts</span>(umi.qc)) <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(umi.qc,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>,<span class="at">size_by =</span> <span class="st">&quot;detected&quot;</span>, <span class="at">shape_by =</span> <span class="st">&quot;individual&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm13"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm13-1.png" alt="PCA plot of the tung data after downsampling" width="100%" />
+<p class="caption">
+Figure 8: PCA plot of the tung data after downsampling
+</p>
+</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRLE</span>(umi.qc, <span class="at">exprs_values =</span> <span class="st">&quot;logcounts_raw&quot;</span>,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm14-1"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm14-1.png" alt="Cell-wise RLE of the tung data" width="100%" />
+<p class="caption">
+Figure 9: Cell-wise RLE of the tung data
+</p>
+</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotRLE</span>(umi.qc, <span class="at">exprs_values =</span> <span class="st">&quot;logcounts&quot;</span>,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm14-2"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm14-2.png" alt="Cell-wise RLE of the tung data" width="100%" />
+<p class="caption">
+Figure 10: Cell-wise RLE of the tung data
+</p>
+</div>
+</div>
+<div id="normalisation-for-genetranscript-length" class="section level3" number="0.2.5">
+<h3><span class="header-section-number">0.2.5</span> Normalisation for gene/transcript length</h3>
+<p>Some methods combine library size and fragment/gene length normalization such as:</p>
+<ul>
+<li><strong>RPKM</strong> - Reads Per Kilobase Million (for single-end sequencing)</li>
+<li><strong>FPKM</strong> - Fragments Per Kilobase Million (same as <strong>RPKM</strong> but for paired-end sequencing, makes sure that paired ends mapped to the same fragment are not counted twice)</li>
+<li><strong>TPM</strong> - Transcripts Per Kilobase Million (same as <strong>RPKM</strong>, but the order of normalizations is reversed - length first and sequencing depth second)</li>
+</ul>
+<p>These methods are not applicable to our dataset since the end of the transcript which contains the UMI was preferentially sequenced. Furthermore, in general these should only be calculated using appropriate quantification software from aligned BAM files not from read counts since often only a portion of the entire gene/transcript is sequenced, not the entire length. If in doubt, check for a relationship between gene/transcript length and expression level.</p>
+<p>However, here we show how these normalisations can be calculated using <code>scater</code>. First, we need to find the effective transcript length in Kilobases. However, our dataset containes only gene IDs, therefore we will be using the gene lengths instead of transcripts. <code>scater</code> uses the <a href="https://bioconductor.org/packages/release/bioc/html/biomaRt.html">biomaRt</a> package, which allows one to annotate genes by other attributes:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>umi.qc <span class="ot">&lt;-</span> <span class="fu">getBMFeatureAnnos</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    umi.qc,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">filters =</span> <span class="st">&quot;ensembl_gene_id&quot;</span>, </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">attributes =</span> <span class="fu">c</span>(</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;ensembl_gene_id&quot;</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;hgnc_symbol&quot;</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;chromosome_name&quot;</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;start_position&quot;</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;end_position&quot;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>   ), </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">biomart =</span> <span class="st">&quot;ENSEMBL_MART_ENSEMBL&quot;</span>, </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">dataset =</span> <span class="st">&quot;hsapiens_gene_ensembl&quot;</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">host =</span> <span class="st">&quot;www.ensembl.org&quot;</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co"># If you have mouse data, change the arguments based on this example:</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co"># getBMFeatureAnnos(</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     object,</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">#     filters = &quot;ensembl_transcript_id&quot;,</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">#     attributes = c(</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;ensembl_transcript_id&quot;,</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;ensembl_gene_id&quot;, </span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;mgi_symbol&quot;,</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;chromosome_name&quot;,</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;transcript_biotype&quot;,</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;transcript_start&quot;,</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;transcript_end&quot;,</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="co">#         &quot;transcript_count&quot;</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co">#     ),</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="co">#     biomart = &quot;ENSEMBL_MART_ENSEMBL&quot;,</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="co">#     dataset = &quot;mmusculus_gene_ensembl&quot;,</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="co">#     host = &quot;www.ensembl.org&quot;</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div>
+<p>Some of the genes were not annotated, therefore we filter them out:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>umi.qc.ann <span class="ot">&lt;-</span> umi.qc[<span class="sc">!</span><span class="fu">is.na</span>(<span class="fu">rowData</span>(umi.qc)<span class="sc">$</span>ensembl_gene_id), ]</span></code></pre></div>
+<p>Now we compute the total gene length in Kilobases by using the <code>end_position</code> and <code>start_position</code> fields:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>eff_length <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rowData</span>(umi.qc.ann)<span class="sc">$</span>end_position <span class="sc">-</span> <span class="fu">rowData</span>(umi.qc.ann)<span class="sc">$</span>start_position) <span class="sc">/</span> <span class="dv">1000</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(eff_length, <span class="fu">rowMeans</span>(<span class="fu">counts</span>(umi.qc.ann)))</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm18"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm18-1.png" alt="Gene length vs Mean Expression for the raw data" width="100%" />
+<p class="caption">
+Figure 11: Gene length vs Mean Expression for the raw data
+</p>
+</div>
+<p>There is no relationship between gene length and mean expression so __FPKM__s &amp; __TPM__s are inappropriate for this dataset. But we will still run the correction for demonstration purposes.</p>
+<p><strong>Note</strong> Here calculate the total gene length instead of the total exon length. Many genes will contain lots of introns so their <code>eff_length</code> will be very different from what we have calculated. Please consider our calculation as approximation. If you want to use the total exon lengths, please refer to <a href="https://www.biostars.org/p/83901/">this page</a>.</p>
+<p>Now we are ready to perform the normalisations:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tpm</span>(umi.qc.ann) <span class="ot">&lt;-</span> <span class="fu">log2</span>(<span class="fu">calculateTPM</span>(umi.qc.ann, eff_length) <span class="sc">+</span> <span class="dv">1</span>)</span></code></pre></div>
+<p>Plot the results as a PCA plot:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> <span class="fu">runPCA</span>(umi.qc.ann, <span class="at">exprs_values =</span> <span class="st">&quot;tpm&quot;</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(tmp,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>,<span class="at">size_by =</span> <span class="st">&quot;detected&quot;</span>,<span class="at">shape_by =</span> <span class="st">&quot;individual&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm20"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm20-1.png" alt="PCA plot of the tung data after TPM normalisation" width="100%" />
+<p class="caption">
+Figure 12: PCA plot of the tung data after TPM normalisation
+</p>
+</div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tpm</span>(umi.qc.ann) <span class="ot">&lt;-</span> <span class="fu">log2</span>(<span class="fu">calculateFPKM</span>(umi.qc.ann, eff_length) <span class="sc">+</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> <span class="fu">runPCA</span>(umi.qc.ann, <span class="at">exprs_values =</span> <span class="st">&quot;tpm&quot;</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(tmp,<span class="at">colour_by =</span> <span class="st">&quot;batch&quot;</span>,<span class="at">size_by =</span> <span class="st">&quot;detected&quot;</span>,<span class="at">shape_by =</span> <span class="st">&quot;individual&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:exprs-norm22"></span>
+<img src="06b-Normalization_files/figure-html/exprs-norm22-1.png" alt="PCA plot of the tung data after FPKM normalisation" width="100%" />
+<p class="caption">
+Figure 13: PCA plot of the tung data after FPKM normalisation
+</p>
+</div>
+<p><strong>Note</strong> The <code>PCA</code> looks for differences between cells. Gene length is the same across cells for each gene thus <strong>FPKM</strong> is almost identical to the <strong>CPM</strong> plot (it is just rotated) since it performs <strong>CPM</strong> first then normalizes gene length. Whereas, <strong>TPM</strong> is different because it weights genes by their length before performing <strong>CPM</strong>.</p>
+</div>
+<div id="exercise" class="section level3" number="0.2.6">
+<h3><span class="header-section-number">0.2.6</span> Exercise</h3>
+<p>Perform the same analysis with read counts of the <code>tung</code> data. Use <code>tung/reads.rds</code> file to load the reads <code>SCE</code> object. Once you have finished please compare your results to ours (next chapter).</p>
+</div>
+<div id="sessioninfo" class="section level3" number="0.2.7">
+<h3><span class="header-section-number">0.2.7</span> sessionInfo()</h3>
+<pre><code>## R version 4.0.4 (2021-02-15)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 20.04.1 LTS
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+## [8] methods   base     
+## 
+## other attached packages:
+##  [1] scran_1.18.5                scater_1.18.6              
+##  [3] ggplot2_3.3.4               SingleCellExperiment_1.12.0
+##  [5] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+##  [7] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
+##  [9] IRanges_2.24.1              S4Vectors_0.28.1           
+## [11] BiocGenerics_0.36.0         MatrixGenerics_1.2.1       
+## [13] matrixStats_0.58.0          knitr_1.31                 
+## [15] scRNA.seq.funcs_0.1.0      
+## 
+## loaded via a namespace (and not attached):
+##   [1] Rtsne_0.15                ggbeeswarm_0.6.0         
+##   [3] colorspace_2.0-0          ellipsis_0.3.1           
+##   [5] scuttle_1.0.4             bluster_1.0.0            
+##   [7] XVector_0.30.0            BiocNeighbors_1.8.2      
+##   [9] farver_2.1.0              bit64_4.0.5              
+##  [11] AnnotationDbi_1.52.0      fansi_0.4.2              
+##  [13] xml2_1.3.2                codetools_0.2-18         
+##  [15] sparseMatrixStats_1.2.1   cachem_1.0.4             
+##  [17] jsonlite_1.7.2            dbplyr_2.1.0             
+##  [19] httr_1.4.2                compiler_4.0.4           
+##  [21] dqrng_0.2.1               assertthat_0.2.1         
+##  [23] Matrix_1.3-2              fastmap_1.1.0            
+##  [25] limma_3.46.0              BiocSingular_1.6.0       
+##  [27] htmltools_0.5.1.1         prettyunits_1.1.1        
+##  [29] tools_4.0.4               rsvd_1.0.3               
+##  [31] igraph_1.2.6              gtable_0.3.0             
+##  [33] glue_1.4.2                GenomeInfoDbData_1.2.4   
+##  [35] dplyr_1.0.5               rappdirs_0.3.3           
+##  [37] Rcpp_1.0.6                jquerylib_0.1.3          
+##  [39] vctrs_0.3.6               DelayedMatrixStats_1.12.3
+##  [41] xfun_0.22                 stringr_1.4.0            
+##  [43] beachmat_2.6.4            lifecycle_1.0.0          
+##  [45] irlba_2.3.3               hypergeo_1.2-13          
+##  [47] statmod_1.4.35            XML_3.99-0.6             
+##  [49] edgeR_3.32.1              zlibbioc_1.36.0          
+##  [51] MASS_7.3-53.1             scales_1.1.1             
+##  [53] hms_1.0.0                 curl_4.3                 
+##  [55] yaml_2.2.1                memoise_2.0.0            
+##  [57] gridExtra_2.3             sass_0.3.1               
+##  [59] biomaRt_2.46.3            stringi_1.5.3            
+##  [61] RSQLite_2.2.4             highr_0.8                
+##  [63] orthopolynom_1.0-5        contfrac_1.1-12          
+##  [65] BiocParallel_1.24.1       rlang_0.4.10             
+##  [67] pkgconfig_2.0.3           moments_0.14             
+##  [69] bitops_1.0-6              evaluate_0.14            
+##  [71] lattice_0.20-41           purrr_0.3.4              
+##  [73] labeling_0.4.2            cowplot_1.1.1            
+##  [75] bit_4.0.4                 tidyselect_1.1.0         
+##  [77] deSolve_1.28              magrittr_2.0.1           
+##  [79] bookdown_0.22             R6_2.5.0                 
+##  [81] generics_0.1.0            DelayedArray_0.16.3      
+##  [83] DBI_1.1.1                 pillar_1.5.1             
+##  [85] withr_2.4.1               RCurl_1.98-1.3           
+##  [87] tibble_3.1.0              crayon_1.4.1             
+##  [89] utf8_1.2.1                BiocFileCache_1.14.0     
+##  [91] rmarkdown_2.7             viridis_0.5.1            
+##  [93] progress_1.2.2            locfit_1.5-9.4           
+##  [95] grid_4.0.4                blob_1.2.1               
+##  [97] digest_0.6.27             elliptic_1.4-0           
+##  [99] openssl_1.4.3             munsell_0.5.0            
+## [101] beeswarm_0.3.1            viridisLite_0.3.0        
+## [103] vipor_0.4.5               bslib_0.2.4              
+## [105] askpass_1.1</code></pre>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "section"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -4,17 +4,5 @@ output_dir: website
 always_allow_html: yes
 new_session: yes
 rmd_files: [
-"index.Rmd", "intro.Rmd", "exp-methods.Rmd", 
-"process-raw-QC.Rmd", "process-raw.Rmd",
-"process-raw-align.Rmd", "exprs-constr.Rmd",
-"umis.Rmd", "intro-to-R.Rmd", "Intro-to-Bioconductor.Rmd",
-"scater.Rmd", "ggplot2-pheatmap-PCA.Rmd", "Intro-TabulaMuris.Rmd", 
-"exprs-qc.Rmd","exprs-qc-reads.Rmd", "exprs-overview.Rmd",
-"exprs-overview-reads.Rmd", "confounders.Rmd","confounders-reads.Rmd", 
-"exprs-norm.Rmd", "exprs-norm-reads.Rmd", "remove-conf.Rmd", 
-"remove-conf-reads.Rmd", "clust-intro.Rmd",
-"clustering.Rmd", "dropouts.Rmd", "pseudotime.Rmd", 
-"imputation.Rmd", "de-intro.Rmd","de-real.Rmd","projection.Rmd", 
-"search.Rmd", "seurat.Rmd", "ideal-scrnaseq-pipeline.Rmd",
-"advanced.Rmd", "tools.Rmd", "references.Rmd"
+"index.Rmd","02-Introduction_to_scRNA-seq.Rmd","03-Raw_read_processing.Rmd","04a-Introduction_to_R.Rmd","04b-Introduction_to_Bioconductor.Rmd","04c-Introduction_to_ggplot2.Rmd","05-SingleCellExperiment.Rmd","06a-QC_and_confounders.Rmd","06b-Normalization.Rmd","06c-Remove_confounders.Rmd","07a-Clustering.Rmd","07b-Differential_expression.Rmd","08-Seurat.Rmd","09-Integration.Rmd","10-tools.Rmd","11-references.Rmd"
 ]

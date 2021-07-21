@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>0.1 Introduction to single-cell RNA-seq | 02-Introduction_to_scRNA-seq.utf8</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="0.1 Introduction to single-cell RNA-seq | 02-Introduction_to_scRNA-seq.utf8" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="0.1 Introduction to single-cell RNA-seq | 02-Introduction_to_scRNA-seq.utf8" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<!-- for Facebook -->  
+<meta property="og:url" content="http://hemberg-lab.github.io/scRNA.seq.course/" />
+<meta property="og:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta property="og:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- for Twitter -->          
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Analysis of single-cell RNA-seq data" />
+<meta name="twitter:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta name="twitter:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- Google Analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-71525309-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-71525309-1');
+</script>
+
+<!-- For Logo -->
+<script>
+  $(document).ready(function(){
+    $(".book-header").prepend('<img id="SangerLogo" src="figures/sanger-logo-header.png" />')
+  }
+</script>
+
+<script>
+  $(document).ready(function(){
+    $('.book-header').wrap( $('<a>').attr('href', 'https://www.sanger.ac.uk/').attr('target', '_blank'))
+  });
+</script>
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="index.html">Table of Contents</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="0.1" data-path=""><a href="#introduction-to-single-cell-rna-seq"><i class="fa fa-check"></i><b>0.1</b> Introduction to single-cell RNA-seq</a>
+<ul>
+<li class="chapter" data-level="0.1.1" data-path=""><a href="#overview-of-single-cell-rna-seq"><i class="fa fa-check"></i><b>0.1.1</b> Overview of Single-Cell RNA-seq</a></li>
+<li class="chapter" data-level="0.1.2" data-path=""><a href="#sample-preparation-protocols"><i class="fa fa-check"></i><b>0.1.2</b> Sample Preparation Protocols</a></li>
+<li class="chapter" data-level="0.1.3" data-path=""><a href="#cell-capture"><i class="fa fa-check"></i><b>0.1.3</b> Cell Capture</a></li>
+<li class="chapter" data-level="0.1.4" data-path=""><a href="#transcript-quantification"><i class="fa fa-check"></i><b>0.1.4</b> Transcript Quantification</a></li>
+<li class="chapter" data-level="0.1.5" data-path=""><a href="#experimental-design"><i class="fa fa-check"></i><b>0.1.5</b> Experimental Design</a></li>
+<li class="chapter" data-level="0.1.6" data-path=""><a href="#summary"><i class="fa fa-check"></i><b>0.1.6</b> Summary</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="http://www.sanger.ac.uk/science/groups/hemberg-group" target="blank">Hemberg Lab</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<div id="introduction-to-single-cell-rna-seq" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Introduction to single-cell RNA-seq</h2>
+<div class="highlight">
+<p><strong>QUESTIONS</strong></p>
+<ul>
+<li>What is single-cell RNA-seq and how does it compare to bulk RNA-seq?</li>
+<li>What are some of the typical applications of scRNA-seq?</li>
+<li>How are samples typically prepared for scRNA-seq?</li>
+<li>What are the differences between some of the most popular protocols and what are their advantages and disadvantages?</li>
+<li>What experimental design choices should be considered in scRNA-seq?</li>
+<li>What are some of the challenges of scRNA-seq data compared to bulk data?</li>
+</ul>
+</div>
+<div id="overview-of-single-cell-rna-seq" class="section level3" number="0.1.1">
+<h3><span class="header-section-number">0.1.1</span> Overview of Single-Cell RNA-seq</h3>
+<p>RNA-seq allows profiling the transcripts in a sample in an efficient and cost-effective way.
+It was a major breakthrough in the late 00’s and has become ever more popular since, largely replacing other transcriptome-profiling technologies such as microarrays.
+Part of its success is due to the fact that RNA-seq allows for an unbiased sampling of all transcripts in a sample, rather than being limited to a pre-determined set of transcripts (as in microarrays or RT-qPCR).</p>
+<p>Typically, RNA-seq has been used in samples composed of a mixture of cells, referred to as <strong>bulk RNA-seq</strong>, and has many applications.
+For example, it can be used to characterise expression signatures between tissues in healthy/diseased, wild-type/mutant or control/treated samples.
+Or in evolutionary studies, using comparative transcriptomics of tissue samples across different species [refs].
+Besides its use in transcript quantification, it can also be used to find and annotate new genes, gene isoforms, and other transcripts, both in model and non-model organisms.</p>
+<p>However, with bulk RNA-seq we can only estimate the <strong>average expression level</strong> for each gene across a population of cells, without regard for the heterogeneity in gene expression across individual cells of that sample.
+Therefore, it is insufficient for studying heterogeneous systems, e.g. early development studies or complex tissues such as the brain.</p>
+<div class="figure">
+<img src="https://cdn.technologynetworks.com/tn/images/body/11570107721805.jpg" alt="" />
+<p class="caption">Broad comparison of bulk vs single-cell RNA-seq</p>
+</div>
+<p>To overcome this limitation, new protocols were developed that allow applying RNA-seq at single-cell level (scRNA-seq), with its first publication in 2009 <span class="citation">[@Tang2009-bu]</span>.
+This technology became more popular from around 2014 (<a href="https://doi.org/10.1038/nmeth.2801">ref</a>), when new protocols and lower sequencing costs made it more accessible.
+Unlike with the bulk approach, with scRNA-seq we can estimate a <strong>distribution of expression levels</strong> for each gene across a population of cells.</p>
+<p>This allows us to answer new biological questions where <strong>cell-specific changes in the transcriptome</strong> are important. For example discovering new or rare cell types, identifying differential cell composition between healthy/diseased tissues or understanding cell differentiation during development.
+One of the most iconic uses of this technology is in building gene atlases (see box below), which provide a comprehensive compendium of the cell diversity in organisms, with many applications in health as well as fundamental research.</p>
+<div class="note">
+<p><strong>Single-cell atlases</strong></p>
+<p>There are many projects trying to provide a comprehensive catalogue of cells in an organism.
+Here is a non-exhaustive list of some of these projects:</p>
+<ul>
+<li><a href="https://www.humancellatlas.org/">Human Cell Atlas</a></li>
+<li><a href="https://tabula-muris.ds.czbiohub.org/">Tabula Muris</a> (Mouse)</li>
+<li><a href="https://flycellatlas.org/">Fly Cell Atlas</a> (<em>Drosophila</em>)</li>
+<li><a href="https://atlas.gs.washington.edu/worm-rna/">Cell Atlas of Worm</a> (<em>C. elegans</em>)</li>
+<li><a href="https://bioit3.irc.ugent.be/plant-sc-atlas/root">Arabidopsis Root Atlas</a></li>
+</ul>
+</div>
+<p>scRNA-seq datasets range from hundreds to millions of cells per study, and increase in size every year.
+There are several different protocols available, both commercial and open access, each with its own advantages and disadvantages.
+We will discuss some of these aspects in the following sections.</p>
+<div class="figure" style="text-align: center"><span id="fig:Exp-methods1"></span>
+<img src="figures/moores-law.png" alt="Moore's law in single cell transcriptomics, showing an increase in the throughput of experiments from tens to millions of cells in just over a decade. (image taken from [Svensson et al.](https://arxiv.org/abs/1704.01379))" width="100%" />
+<p class="caption">
+Figure 1: Moore’s law in single cell transcriptomics, showing an increase in the throughput of experiments from tens to millions of cells in just over a decade. (image taken from <a href="https://arxiv.org/abs/1704.01379">Svensson et al.</a>)
+</p>
+</div>
+</div>
+<div id="sample-preparation-protocols" class="section level3" number="0.1.2">
+<h3><span class="header-section-number">0.1.2</span> Sample Preparation Protocols</h3>
+<p>Broadly speaking, a typical scRNA-seq protocol consists of the following steps (illustrated in the figure below):</p>
+<ul>
+<li>Tissue dissection and cell dissociating to obtain a suspension of cells.</li>
+<li>Optionally cells may be selected (e.g. based on membrane markers, fluorescent transgenes or staining dyes).</li>
+<li>Capture single cells into individual reaction containers (e.g. wells or oil droplets).</li>
+<li>Extracting the RNA from each cell.</li>
+<li>Reverse-transcribing the RNA to more stable cDNA.</li>
+<li>Amplifying the cDNA (either by <em>in vitro</em> transcription or by PCR).</li>
+<li>Preparing the sequencing library with adequate molecular adapters.</li>
+<li>Sequencing, usually with paired-end Illumina protocols.</li>
+<li>Processing the raw data to obtain a count matrix of genes-by-cells</li>
+<li>Carrying several downstream analysis (the focus of this course).</li>
+</ul>
+<p>This course deals mostly with the last step of this workflow, but it is important to consider some of the steps that come before that, as they have an impact on the properties of the data we get.</p>
+<div class="figure">
+<img src="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41596-018-0073-y/MediaObjects/41596_2018_73_Fig1_HTML.png?as=webp" alt="" />
+<p class="caption">Schematic of a typical single-cell sequencing workflow. Abbreviations: IVT, <em>in vitro</em> transcription; PCR, polymerase chain reaction; UMI, unique molecular identifier. Image from <a href="https://doi.org/10.1038/s41596-018-0073-y">Lafzi et al. 2018</a>.</p>
+</div>
+<div class="note">
+<p><strong>Single-nucleus RNA-seq</strong></p>
+<p>In tissues where cell dissociation is difficult or in frozen tissue samples, instead of isolating whole single cells it is possible to instead isolate single nuclei.
+Apart from the isolation step, the protocol to prepare single-nuclei sequencing libraries is similar to that of single-cell protocols.
+However, nuclear RNA usually contains a higher proportion of unprocessed RNA, with more of the sequenced transcripts containing introns.
+This aspect needs to be considered in the data processing steps, which we detail in the following chapter.</p>
+</div>
+<p>There are currently a wide diversity of protocols for preparing scRNA-seq data, each with its own strengths and weaknesses, which we will come to below.
+These methods can be categorized in different ways, but the two most important aspects are <strong>cell capture or isolation</strong> and <strong>transcript quantification</strong>.</p>
+<div class="figure">
+<img src="https://www.annualreviews.org/na101/home/literatum/publisher/ar/journals/content/biodatasci/2018/biodatasci.2018.1.issue-1/annurev-biodatasci-080917-013452/20180705/images/large/bd10029.f2.jpeg" alt="" />
+<p class="caption">Comparison of common scRNA-seq protocols. Abbreviations: cDNA, complementary DNA; DNA pol I, DNA polymerase I; FACS, fluorescence-activated cell sorting; PCR, polymerase chain reaction; RNase H, ribonuclease H; RT, reverse transcription; TSO, template-switching oligonucleotide. (source: <a href="https://doi.org/10.1146/annurev-biodatasci-080917-013452">Chen, Teichman and Meyer, 2018</a>)</p>
+</div>
+</div>
+<div id="cell-capture" class="section level3" number="0.1.3">
+<h3><span class="header-section-number">0.1.3</span> Cell Capture</h3>
+<p>The strategy used for capturing cells determines the throughput of the experiment (i.e. how many cells we isolate), how the cells are selected prior to sequencing, as well as what kind of additional information besides transcript sequencing can be obtained.
+The three most widely used options are <strong>microtitre-plate-based</strong>, <strong>microfluidic-array-based</strong> and <strong>microfluidic-droplet-based</strong> methods.</p>
+<div class="figure" style="text-align: center"><span id="fig:Exp-methods2"></span>
+<img src="figures/cell_capture_methods.svg" alt="Single cell isolation methods."  />
+<p class="caption">
+Figure 2: Single cell isolation methods.
+</p>
+</div>
+<p><strong>Microtitre-plate</strong> methods rely on isolating cells into individual wells of the plate using, for example, pipetting, microdissection or fluorescent activated cell sorting (FACS).
+One advantage of well-based methods is that one can take pictures of the cells before library preparation, providing an additional data modality.
+For example one can identify and discard damaged cells or find wells containing doublets (wells with two or more cells).
+When using automatic FACS sorting, it is also possible to associate information such as cell size and the intensity of any used labels with the well coordinates, and therefore with individual cell indices in downstream analysis.
+The main drawback of these methods is that they are often low-throughput and the amount of work required per cell may be considerable.</p>
+<p><strong>Microfluidic-array</strong> platforms, such as <a href="https://www.fluidigm.com/products/c1-system#workflow">Fluidigm’s C1</a>, provide a more integrated system for capturing cells and for carrying out the reactions necessary for the library preparations.
+Thus, they provide a higher throughput than microtitre-plate-based methods. Typically, only around 10% of cells are captured in a microfluidic platform and thus they are not appropriate if one is dealing with rare cell-types or very small amounts of input.
+Care also has to be taken with the cell sizes captured by the arrays, as the nanowells are customised for particular sizes (this may therefore affect the unbiased sampling of cells in complex tissues).
+Moreover, the chip is relatively expensive, but since reactions can be carried out in a smaller volume, money can be saved on reagents.</p>
+<p><strong>Microfluidic-droplet</strong> methods offer the highest throughput and are the most popular method used nowadays. They work by encapsulating individual cells inside a nanoliter-sized oil droplet, together with a bead. The bead is loaded with enzymes and other components required to construct the library. In particular, each bead contains a unique barcode which is attached to all of the sequencing reads originating from that cell. Thus, all of the droplets can be pooled, sequenced together and the reads can subsequently be assigned to the cell of origin based on those barcodes. Droplet platforms have relatively cheap library preparation costs on the order of 0.05 USD/cell. Instead, sequencing costs often become the limiting factor and a typical experiment the coverage is low with only a few thousand different transcripts detected <span class="citation">[@Ziegenhain2017-cu]</span>.</p>
+<p>(Hugo: do we need to adjust these cost estimates? Here <a href="https://satijalab.org/costpercell/" class="uri">https://satijalab.org/costpercell/</a> they assume a cost of $0.24 per cell, for example)</p>
+<div class="note">
+<p>Fluorescence Activated Cell Sorting (FACS) can be used upstream of any of the capture methods, to select a sub-population of cells.
+A common way in which this is used is to stain the cells with a dye that distinguishes between live and dead cells (e.g. due to membrane rupture), thus enriching the cell suspension with viable cells.</p>
+</div>
+</div>
+<div id="transcript-quantification" class="section level3" number="0.1.4">
+<h3><span class="header-section-number">0.1.4</span> Transcript Quantification</h3>
+<p>There are two types of transcript quantification: <strong>full-length</strong> and <strong>tag-based</strong>.
+Full-length protocols try to achieve a uniform read coverage across the whole transcript, whereas tag-based protocols only capture either the 5’ or 3’ ends. The choice of quantification method has important implications for what types of analyses the data can be used for.</p>
+<p>Preparing full-length libraries for single-cell is essentially identical to what is done in bulk RNA-seq (Figure below), and is restricted to plate-based protocols such as SMART-seq2.
+Although in theory full-length protocols should provide an even coverage of transcripts, there can sometimes be biases in the coverage across the gene body (illustrated below).
+Full-length protocols also allow the detection of splice variants, which is very difficult to do with other protocols.</p>
+<div class="figure">
+<img src="https://aws.labome.com/figure/te-203-4.png" alt="" />
+<p class="caption">Full-length RNA library preparation for Illumina sequencing. Samples are enriched for RNA containing a poly(A) tail, which avoids sequencing rRNA (at the cost of also missing other non-coding RNAs). The RNA is then fragmented and reverse-transcribed to more stable cDNA, Illumina adapters ligated to each molecule and finally PCR-amplified. In the case of single-cell RNA-seq, adapters with well-specific barcodes are used, allowing to identify sequencing reads belonging to individual cells. (<a href="https://www.labome.com/method/RNA-seq.html">source</a>)</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:Exprs-constr3"></span>
+<img src="figures/Exp1_RSEQC_geneBodyCoverage_plot_Combined.png" alt="Example of 3' bias in the gene body coverage, after aligning the sequencing reads to the transcriptome. Each line represents the average coverage across all the genes in a cell. In this example, in addition to the 3' bias across all cells, there are three cells that look like outliers relative to the rest and should be removed from downstream analysis. These may be cells where RNA quality was poorer, e.g. due to degradation." width="90%" />
+<p class="caption">
+Figure 3: Example of 3’ bias in the gene body coverage, after aligning the sequencing reads to the transcriptome. Each line represents the average coverage across all the genes in a cell. In this example, in addition to the 3’ bias across all cells, there are three cells that look like outliers relative to the rest and should be removed from downstream analysis. These may be cells where RNA quality was poorer, e.g. due to degradation.
+</p>
+</div>
+<p>With tag-based protocols, only one of the ends (3’ or 5’) of the transcript is sequenced.
+The main advantage of tag-based protocols is that they can be combined with unique molecular identifiers (UMIs), which can help improve the accuracy of transcript quantification.
+The reason for this improvement has to do with the PCR amplification step during library preparation, which creates several duplicate copies of each molecule.
+Because this amplification is exponential, molecules may be unfairly represented in the final library, leading to over-estimation of their expression due to these PCR duplicates.
+To address this problem, cell barcodes are uniquely tagged with a random nucleotide sequence, the UMI, which is therefore unique to a single molecule.
+This UMI is part of the sequencing read and can then be computationally taken into account when quantifying the transcript’s abundance.
+Most current scRNA-seq protocols are tag-based, including the popular droplet-based <em>10x Chromium</em> protocol, illustrated in the figure below.
+One disadvantage of tag-based protocols is that, being restricted to one end of the transcript only, it reduces our ability to unambiguously align reads to a transcript, as well as making it difficult to distinguish different isoforms <span class="citation">[@Archer2016-zq]</span>.</p>
+<div class="figure">
+<img src="figures/chromium_library.svg" alt="" />
+<p class="caption">Protocol overview of 3’ libraries using the <em>10X Chromium</em> protocol. Cells are captured in individual oil droplets containing a bead (called GEMs). An individual bead contains adapters with a common barcode, but diverse and distinct <em>Unique Molecular Identifier</em> (UMI) sequences. A poly(dT) primer is used to reverse-transcribe mRNA with poly-A tails into cDNA. The GEMs are then broken and the pooled cDNA (from all barcoded cells) is amplified by PCR. Finally, the cDNA is fragmented and another Illumina adapter is ligated at the other end of the molecule. The final library is composed of a read containing the cell-specific barcode (used to identify reads from different cells) and a molecule-specific UMI (used to quantify a gene’s expression), while the second read contains sequence from the actual cDNA molecule and can be used to align it to a reference transcriptome. (source: <a href="https://assets.ctfassets.net/an68im79xiti/1C16trEdzy1Folq5xbOijE/7e6fb1f504e130bd561d898384da99d9/CG000315_ChromiumNextGEMSingleCell3-_GeneExpression_v3.1_DualIndex__RevB.pdf">Chromium Next GEMSingle Cell 3ʹ User Guide</a>)</p>
+</div>
+<div class="note">
+<p><strong>5’ or 3’?</strong></p>
+<p>The difference between 5’ and 3’ tag-based protocols is which end of the transcript is sequenced.
+Although 3’ protocols are more commonly used, many protocols now allow sequencing from either end (e.g. <a href="https://kb.10xgenomics.com/hc/en-us/articles/360000939852-What-is-the-difference-between-Single-Cell-3-and-5-Gene-Expression-libraries-">10x Chromium supports both</a>).
+The advantage of 5’-end sequencing is that we obtain information about the transcription start site (TSS), which allows to explore whether there is differential TSS usage across cells.</p>
+<p>(Hugo: is this correct? Are there other advantages/disadvantages?)</p>
+</div>
+</div>
+<div id="experimental-design" class="section level3" number="0.1.5">
+<h3><span class="header-section-number">0.1.5</span> Experimental Design</h3>
+<p>Several considerations need to be taken into account when performing scRNA-seq experiments.
+Factors such as the cost per cell, how many cells one needs, or how much to sequence each cell, may all influence our choice of protocol.
+On the other hand, care has to be taken to avoid biases due to batches being processed at different times and a lack of adequate replication may also constrain the types of analysis that can be done and therefore limit our ability to answer some questions of interest.</p>
+<div id="what-protocol-should-i-choose" class="section level4" number="0.1.5.1">
+<h4><span class="header-section-number">0.1.5.1</span> What Protocol Should I Choose?</h4>
+<p>The most suitable platform depends on the biological question at hand. For example, if one is interested in characterizing the composition of a heterogeneous tissue, then a droplet-based method is more appropriate, as it allows a very large number of cells to be captured in a mostly unbiased manner. On the other hand, if one is interested in characterizing a specific cell-population for which there is a known surface marker, then it is probably best to enrich using FACS and then sequence a smaller number of cells at higher sequencing depth.</p>
+<p>Clearly, full-length transcript quantification will be more appropriate if one is interested in studying different isoforms, since tagged protocols are much more limited in this regard. By contrast, UMIs can only be used with tagged protocols and they can improve gene-level quantification.</p>
+<p>If one is interested in rare cell types (for which known markers are not available), then more cells need to be sequenced, which will increase the cost of the experiment.
+A useful tool to estimate how many cells to sequence has been developed by the Satija Lab: <a href="https://satijalab.org/howmanycells/" class="uri">https://satijalab.org/howmanycells/</a>.</p>
+<p>Another way to decide on which method to use, is to rely on studies dedicated to comparing different protocols. These studies focus on issues such as sensitivity (how many genes are detected per cell), their accuracy (e.g. compared to bulk RNA-seq) and in their ability to recover all cell types present in a sample (tested on commercially available cell mixtures).
+For example, a study by <a href="https://doi.org/10.1038/s41587-020-0465-8">Ding et al. 2020</a> illustrates how low-throughput methods have higher sensitivity compared to high-throughput methods, such as 10x Chromium (Figure below).
+On the other hand, low-throughput methods did not capture some of the rarer cell types in their samples, leading to an incomplete characterisation of the cell population.</p>
+<div class="figure">
+<img src="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41587-020-0465-8/MediaObjects/41587_2020_465_Fig3_HTML.png?as=webp" alt="" />
+<p class="caption">Transcript detection sensitivity of different methods in a commercial mixture of peripheral blood mononuclear cells (PBMCs). The figure is taken from <a href="https://doi.org/10.1038/s41587-020-0465-8">Ding et al.</a> and shows a) the number of distinct UMIs detected per cell (for methods using tag-based transcript quantification) and b) the number of detected genes per cell across methods. Results from two experimental replicates are shown.</p>
+</div>
+<p>Another study by Ziegenhain et al. <span class="citation">[@Ziegenhain2017-cu]</span> compared five different protocols on the same sample of mouse embryonic stem cells (mESCs), reaching similar conclusions.
+And finally, a study by Svensson et al. <span class="citation">[@Svensson2017-op]</span> used synthetic transcripts (spike-ins) with known concentrations to measure the accuracy and sensitivity of different protocols. Comparing a wide range of studies, they also reported substantial differences between the protocols (Figure below).</p>
+<div class="figure" style="text-align: center"><span id="fig:Exp-methods6"></span>
+<img src="figures/svenssonTeichmannFig2.png" alt="Figure from [Svensson et al.](https://doi.org/10.1038/nmeth.4220), comparing different protocols in relation to their a) accuracy (measured as the Pearson's correlation with bulk RNA-seq data) and b) sensitivity (number of detected molecules)." width="100%" />
+<p class="caption">
+Figure 4: Figure from <a href="https://doi.org/10.1038/nmeth.4220">Svensson et al.</a>, comparing different protocols in relation to their a) accuracy (measured as the Pearson’s correlation with bulk RNA-seq data) and b) sensitivity (number of detected molecules).
+</p>
+</div>
+<p>As protocols are developed and improved, and new computational methods for quantifying the technical noise emerge, it is likely that future studies will help us gain further insights regarding the strengths of the different methods. These comparative studies are helpful not only to decide on which protocol to use, but also for developing new methods as the benchmarking makes it possible to determine what strategies are the most useful ones.</p>
+<p>Besides differences in throughput and sensitivity between protocols, <strong>cost</strong> may also be a deciding factor when planning a scRNA-seq experiment.
+It is difficult to precisely estimate how much an experiment will cost, although we point to this tool from the Satija Lab as a starting point: <a href="https://satijalab.org/costpercell/" class="uri">https://satijalab.org/costpercell/</a>.
+For example, some droplet-based protocols such as Drop-seq are cheaper than the commercial alternatives such as 10x Chromium. However, they require the labs to be equipped to prepare the libraries, as well as trained staff and dedicated time (costing salary money).</p>
+<p>Methods such as <em>cell hashing</em> (<a href="https://doi.org/10.1186/s13059-018-1603-1">Stoeckius et al.</a>) may further reduce the costs of sequencing using current platforms.
+This method in particular consists of attaching oligo-tags to cell membranes, allowing more cells from multiple samples to be loaded per experiment, which can later be demultiplexed during the analysis.</p>
+</div>
+<div id="data-challenges" class="section level4" number="0.1.5.2">
+<h4><span class="header-section-number">0.1.5.2</span> Data Challenges</h4>
+<p>The main difference between bulk and single cell RNA-seq is that each sequencing library represents a single cell, instead of a population of cells.
+Therefore, there is no way to have “biological replicates” at a single-cell level: each cell is unique and impossible to replicate.
+Instead, cells can be clustered by their similarity, and comparisons can then be done across groups of similar cells (as we shall see later in the course).</p>
+<p>Another big challenge in single-cell RNA-seq is that we have a very low amount of starting material per cell.
+This results in very <em>sparse</em> data, where most of the genes remain undetected and so our data contains many zeros.
+These may either be due to the gene not being expressed in the cell (a “real” zero) or the gene was expressed but we were unable to detect it (a “dropout”).
+This leads to cell-to-cell variation that is not always biological but rather due to technical issues caused by <strong>uneven PCR amplification</strong> across cells and <strong>gene “dropouts”</strong> (where a gene is detected in one cell but absent from another <span class="citation">[@Kharchenko2014-ts]</span>).
+Improving the transcript capture efficiency and reducing the amplification bias are solutions for these problems and still active areas of technical research.
+However, as we shall see in this course, it is possible to alleviate some of these issues through proper data normalisation.</p>
+<p>Another important aspect to take into account are <strong>batch effects</strong>.
+These can be observed even when sequencing the same material using different technologies (figure below), and if not properly normalised, can lead to incorrect conclusions.</p>
+<div class="figure">
+<img src="figures/batch_effect_protocols.svg" alt="" />
+<p class="caption">The same cell population was sequenced with three different single-cell protocols (colours). Adapted from <a href="https://doi.org/10.1016/j.molcel.2018.10.020">Zhang et al.</a>.</p>
+</div>
+<p>The processing of samples should also be done in a manner that avoids <strong>confounding</strong> between experimentally controlled variables (such as a treatment, a genotype or a disease state) and the time when the samples are prepared and sequenced.
+For example, if planning an experiment to compare healthy and diseased tissues from 10 patients each, if only 10 samples can be processed per day, it is best to do 5 healthy + 5 diseased together each day, rather than prepare all healthy samples one day and all diseased samples in another (figure).
+Another consideration is to ensure that there is <strong>replication</strong> of tissue samples.
+For example, when collecting tissue from an organ, it may be a good idea to take multiple samples from different parts of the organ.
+Or consider the time of day when samples/replicates are collected (due to possible circadian changes in gene expression).
+In summary, all the common best practices in experimental design should be taken into account when performing scRNA-seq.</p>
+<div class="figure">
+<img src="figures/balanced_design.png" alt="" />
+<p class="caption">Illustration of a confounded (top panels) and balanced (bottom panels) designs. Shapes denote different sample types (e.g. tissues or patients) and colours processing batches. In the confounded design it’s impossible to disentangle biological variation from variation due to the processing batch. In the balanced design, by using tissue replicates and mixing them across batches, it is possible to distinguish between biological and batch-related variation. Figure from <a href="https://doi.org/10.1093/biostatistics/kxx053">Hicks et al.</a>.</p>
+</div>
+</div>
+</div>
+<div id="summary" class="section level3" number="0.1.6">
+<h3><span class="header-section-number">0.1.6</span> Summary</h3>
+<div class="highlight">
+<p><strong>KEY POINTS</strong></p>
+<ul>
+<li>scRNA-seq is ideally suited to study heterogeneous populations of cells. For example to identify the types of cells that compose a tissue, define “transcriptional fingerprints” for different cell types, study cell differentiation, explore changes in cell composition due to disease or environmental factors, amongst others.</li>
+<li>A typical sample preparation workflow consists of isolating single cells (or nuclei), converting the RNA into cDNA, preparing a sequencing library (Illumina) and sequencing.</li>
+<li>Many single-cell protocols have been developed, some openly available, others provided commercially. These mainly differ in their throughput (how many cells are captured per experiment), the type of quantification (full-length or tag-based) and also cost.</li>
+<li>SMART-seq2 is a popular low-throughput method, providing full-length transcript quantification. It is ideally suited for studying a smaller group of cells in greater detail (e.g. differential isoform usage, characterisation of lowly-expressed transcripts).</li>
+<li>10x Chromium is a popular high-throughput method, using UMIs for transcript quantification (from either 3’ or 5’ ends). It is ideally suited to study highly heterogeneous tissues and sample large populations of cells at scale.</li>
+<li>When planning an experiment, care should be taken to avoid confounding due to batch effects as well as ensuring an adequate level of replication to address questions of interest.</li>
+</ul>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "section"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

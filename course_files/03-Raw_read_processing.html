@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>0.1 Processing Raw scRNA-Seq Sequencing Data: From Reads to a Count Matrix | 03-Raw_read_processing.utf8</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="0.1 Processing Raw scRNA-Seq Sequencing Data: From Reads to a Count Matrix | 03-Raw_read_processing.utf8" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="0.1 Processing Raw scRNA-Seq Sequencing Data: From Reads to a Count Matrix | 03-Raw_read_processing.utf8" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<!-- for Facebook -->  
+<meta property="og:url" content="http://hemberg-lab.github.io/scRNA.seq.course/" />
+<meta property="og:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta property="og:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- for Twitter -->          
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Analysis of single-cell RNA-seq data" />
+<meta name="twitter:description" content="In this course we will be surveying the existing problems as well as the available computational and statistical frameworks available for the analysis of scRNA-seq. The course is taught through the University of Cambridge Bioinformatics training unit, but the material found on these pages is meant to be used for anyone interested in learning about computational analysis of scRNA-seq data." />
+<meta name="twitter:image" content="http://hemberg-lab.github.io/scRNA.seq.course/figures/RNA-Seq_workflow-5.pdf.jpg" />
+
+<!-- Google Analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-71525309-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-71525309-1');
+</script>
+
+<!-- For Logo -->
+<script>
+  $(document).ready(function(){
+    $(".book-header").prepend('<img id="SangerLogo" src="figures/sanger-logo-header.png" />')
+  }
+</script>
+
+<script>
+  $(document).ready(function(){
+    $('.book-header').wrap( $('<a>').attr('href', 'https://www.sanger.ac.uk/').attr('target', '_blank'))
+  });
+</script>
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="index.html">Table of Contents</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="0.1" data-path=""><a href="#processing-raw-scrna-seq-sequencing-data-from-reads-to-a-count-matrix"><i class="fa fa-check"></i><b>0.1</b> Processing Raw scRNA-Seq Sequencing Data: From Reads to a Count Matrix</a>
+<ul>
+<li class="chapter" data-level="0.1.1" data-path=""><a href="#reference-genome-and-its-annotation"><i class="fa fa-check"></i><b>0.1.1</b> Reference Genome and its Annotation</a></li>
+<li class="chapter" data-level="0.1.2" data-path=""><a href="#processing-of-bulk-rna-seq-and-full-length-scrna-seq-data"><i class="fa fa-check"></i><b>0.1.2</b> Processing of Bulk RNA-seq and Full-length scRNA-seq Data</a></li>
+<li class="chapter" data-level="0.1.3" data-path=""><a href="#read-alignment-and-quantification-in-droplet-based-scrna-seq-data"><i class="fa fa-check"></i><b>0.1.3</b> Read Alignment and Quantification in Droplet-based scRNA-seq Data</a></li>
+<li class="chapter" data-level="0.1.4" data-path=""><a href="#starsolo-and-alevin-full-decoy-high-speed-and-high-accuracy"><i class="fa fa-check"></i><b>0.1.4</b> STARsolo and Alevin-full-decoy: High Speed and High Accuracy</a></li>
+<li class="chapter" data-level="0.1.5" data-path=""><a href="#notes-on-non-model-organisms"><i class="fa fa-check"></i><b>0.1.5</b> Notes on Non-model Organisms</a></li>
+<li class="chapter" data-level="0.1.6" data-path=""><a href="#brief-summary-and-processing-recommendations"><i class="fa fa-check"></i><b>0.1.6</b> Brief Summary and Processing Recommendations</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="http://www.sanger.ac.uk/science/groups/hemberg-group" target="blank">Hemberg Lab</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<div id="processing-raw-scrna-seq-sequencing-data-from-reads-to-a-count-matrix" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Processing Raw scRNA-Seq Sequencing Data: From Reads to a Count Matrix</h2>
+<div id="reference-genome-and-its-annotation" class="section level3" number="0.1.1">
+<h3><span class="header-section-number">0.1.1</span> Reference Genome and its Annotation</h3>
+<p>Most scRNA-seq experiments are done using human or mouse tissues, organoids, or cell cultures. Even though first drafts of these genomes were published about 20 years ago, assembly and annotation updates happen fairly regularly. There are two popular sources of assembly files: UCSC (their assemblies are named hg19, hg38, mm10, etc), and GRC (GRCh37, GRCh38, GRCm38). Major releases of UCSC and GRC assemblies are matched in main chromosomes (e.g. chr1 from hg38 = chr1 from GRCh38), but differ in additional contigs and so-called ALT loci, which change between minor releases (e.g. GRCh38.p13). More information can be obtained <a href="https://www.ncbi.nlm.nih.gov/grc/human">here</a> and <a href="https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use">here</a>. Genome assembly is usually distributed as a fasta file - a simple text file that includes sequence names and sequences.</p>
+<p>Genome annotation process includes defining transcribed regions of genome (genes), as well as annotating exact transcripts with exon-intron boundaries, and assigning the newly defined features a type - e.g. protein coding, non-coding, etc. Example below shows one gene which consists of 5 transcripts: 3 protein coding (red), and two non-coding (blue). Genome annotation is usually provided in either <a href="https://ensembl.org/info/website/upload/gff.html">GTF or GFF3 file format</a>, which are organized hierarchically. Each gene is defined by a unique gene ID; each transcript is defined by a unique transcript ID and the gene it belongs to. Exons, UTRs, and coding sequences are in turn assigned to a particular transcript.</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant1"></span>
+<img src="figures/read_quant_1.png" alt="Transcript and intron-exon structure of a typical eukaryotic gene" width="100%" />
+<p class="caption">
+Figure 1: Transcript and intron-exon structure of a typical eukaryotic gene
+</p>
+</div>
+<p>Popular sources of human and mouse genome annotation are <a href="https://www.ncbi.nlm.nih.gov/refseq/">RefSeq</a>, <a href="https://ensembl.org/Homo_sapiens/Info/Annotation">ENSEMBL</a>, and <a href="https://www.gencodegenes.org/">GENCODE</a>. RefSeq is the most conservative of the three, and tends to have the fewest annotated transcripts per gene. RefSeq transcript IDs start with NM_ or NR, e.g. <strong>NM_12345</strong>. ENSEMBL and GENCODE are very similar to each other and can be used interchangeably for our purposes. Gene names in these start with ENSG (for human) and ENSMUSG (for mouse); transcripts start with ENST and ENSMUST, respectively.</p>
+<p>In addition to gene IDs, most genes also have a common name (“gene symbol”) assigned to them; e.g. human actin B will have ensembl gene ID <strong>ENSG00000075624</strong> and symbol <em>ACTB</em>. Human gene names are regularly updated and defined by <a href="https://www.genenames.org/">HGNC</a>. Mouse gene names are decided by a similar consortium, <a href="http://www.informatics.jax.org/mgihome/nomen/">MGI</a>.</p>
+<p>Current ENSEMBL/GENCODE annotation of the human genome contains approximately 60k genes, 20k of which are protein coding, and 237k transcripts. Most genes can be coarsely divided by type into protein coding genes, long noncoding RNAs, short noncoding RNAs, and pseudogenes. On a higher resolution, over 40 biotypes are defined. Gene biotype annotation also often changes between annotation versions (see below).</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant2"></span>
+<img src="figures/read_quant_2.png" alt="Sankey diagram of gene type changes in GENCODE versions" width="100%" />
+<p class="caption">
+Figure 2: Sankey diagram of gene type changes in GENCODE versions
+</p>
+</div>
+</div>
+<div id="processing-of-bulk-rna-seq-and-full-length-scrna-seq-data" class="section level3" number="0.1.2">
+<h3><span class="header-section-number">0.1.2</span> Processing of Bulk RNA-seq and Full-length scRNA-seq Data</h3>
+<p>Raw read processing of bulk RNA-seq is usually done in two steps: read alignment and read counting. Both steps contain important caveats which can strongly influence expression estimates for individual genes. Read alignment can be done against a genome or transcriptome reference. Because of widespread splicing in animal genomes, read alignment against a genome has to be done with a splice-aware aligner; two most popular modern tools are <a href="https://github.com/alexdobin/STAR">STAR</a> and <a href="https://daehwankimlab.github.io/hisat2/">hisat2</a>. Typical read coverage is shown in panel A below; note that read coverage is relatively uniform across both 3’ and 5’ ends of the given gene. Some reads perfectly align to more than 1 location; these reads are often referred to as multimappers. The ambiguity is much greater when aligning to transcriptome because many transcripts are very similar to each other (e.g. differ by only one exon); however, it is noticeable even on a gene level (panel B below).</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant3"></span>
+<img src="figures/read_quant_3.png" alt="A: typical read coverage in a bulk RNA-seq or Smart-seq2 experiment; B: types of ambiguity that arise when reads are assigned to features" width="100%" />
+<p class="caption">
+Figure 3: A: typical read coverage in a bulk RNA-seq or Smart-seq2 experiment; B: types of ambiguity that arise when reads are assigned to features
+</p>
+</div>
+<p>After alignment to the genome or transcriptome, read counts can be summarized on a gene or transcript level. In case of genome alignment, the simplest strategy is to count only reads mapping to a unique location (non-multimappers), and only overlapping one gene. This, however, inevitably creates a bias in gene expression estimates (Pachter, 2011). Somewhat more advanced strategy includes splitting read counts between features it aligns to (e.g. if a read aligns equally well to 3 paralogous genes, each paralog gets ⅓ of a count). Strand-specific RNA-seq reduces the ambiguity of read assignment in case of overlapping features located on opposite strands. An example of a program that efficiently implements all of the above-mentioned counting methods is <a href="http://bioinf.wehi.edu.au/featureCounts/">featureCounts</a> from the <a href="http://subread.sourceforge.net">Subread package</a>.</p>
+<p>When transcriptome alignment is used, read assignment ambiguity is too great for simple counting. Thus, per-transcript and per-gene abundances are calculated using maximum likelihood abundance estimates using the <a href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm">Expectation-Maximization</a> (EM) algorithm. This approach results in varying fractions of the read being assigned to features it maps to, and substantially reduces the bias related to multimappers. Reads (and read fractions) that are assigned to transcripts are then summarized on gene level. The most widely used and well-supported program implementing this strategy is <a href="https://github.com/deweylab/RSEM">RSEM</a>. Generally speaking, this is the most accurate way of bulk RNA-seq quantification (Pachter, 2011).</p>
+<p>An alternative to a conventional approach described above (alignment, then read quantification) is based on so-called pseudo-alignment methods. Two popular tools, <a href="https://pachterlab.github.io/kallisto/">kallisto</a> and <a href="https://salmon.readthedocs.io/en/latest/salmon.html">salmon</a>, use very similar approaches:</p>
+<ul>
+<li>Split the reference transcriptome into k-mers and make a De Bruijn graph;</li>
+<li>Convert RNA-seq reads into k-mers;</li>
+<li>Use the k-mers to assign reads to a transcript or several transcripts (“equivalence class”);</li>
+<li>Summarize the resulting counts on a transcript or gene level.</li>
+</ul>
+<p>Expectation-Maximization algorithm is used to find optimal distribution of reads that map to multiple transcripts. Both tools are extremely memory- and CPU-efficient, and quite accurate, especially for paired-end or long single-end reads. Pseudoalignment does not generate an alignment BAM file, so if visualization is needed (e.g. when using RNA-seq for transcript annotation) alignment should also be performed separately.</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant4"></span>
+<img src="figures/read_quant_4.png" alt="Pseudoalignment to transcriptome De Bruijn graph" width="100%" />
+<p class="caption">
+Figure 4: Pseudoalignment to transcriptome De Bruijn graph
+</p>
+</div>
+<p>Several things should be noted about bulk RNA-seq quantification. First, it is generally assumed that the number of sequenced cDNA fragments is proportional to the amount of RNA present in a cell. Thus when paired-end reads are used, each read pair is counted only once, as it stems from the same cDNA fragment. For well-annotated genomes like human and mouse it is very common to use single-end reads for RNA-seq. Second, PCR duplicates are usually ignored in bulk RNA-seq, and UMI use also does not confer substantial benefits. Several independent studies indicated that duplicate removal or UMI use do not noticeably increase the statistical power of bulk RNA-seq.</p>
+<p>Finally, while many differential expression methods use raw read counts, it is conventional to use within-sample normalization when doing clustering, PCA, and other types of exploratory analysis. The most popular method of such normalization is conversion of raw reads to <a href="https://www.rna-seqblog.com/rpkm-fpkm-and-tpm-clearly-explained">Transcripts per Million</a> (TPM). The conversion accounts for two biases: 1) different samples are sequenced at different depth, not directly related to gene expression differences; 2) long genes are expected to generate more cDNA fragments than the short ones. Thus, for TPM calculation, raw read counts are first divided by the effective transcript length, which is defined as transcript length - cDNA fragment size + 1. After this, the resulting numbers are scaled linearly to add up to one million. Thus, the sum of all TPM values for a particular sample is always equal to (approximately) 1,000,000.</p>
+</div>
+<div id="read-alignment-and-quantification-in-droplet-based-scrna-seq-data" class="section level3" number="0.1.3">
+<h3><span class="header-section-number">0.1.3</span> Read Alignment and Quantification in Droplet-based scRNA-seq Data</h3>
+<div id="general-considerations" class="section level4" number="0.1.3.1">
+<h4><span class="header-section-number">0.1.3.1</span> General Considerations</h4>
+<p>Single cell RNA-seq data differ from bulk RNA seq in a number of ways (see Introduction to single cell RNA-Seq chapter above). Most modern scRNA-seq technologies generate read sequences containing three key pieces of information:</p>
+<ul>
+<li>cDNA fragment that identifies the RNA transcript;</li>
+<li>Cell barcode (CB) that identifies the cell where the RNA was expressed;</li>
+<li>Unique Molecular Identifier (UMI) that allows to collapse reads that are PCR duplicates.</li>
+</ul>
+<p>In contrast to bulk RNA-seq, scRNA-seq deals with a much smaller amount of RNA, and more PCR cycles are performed. Thus, UMI barcodes become very useful and are now widely accepted in scRNAseq. Library sequencing is often done with paired-end reads, with one read containing CB + UMI (read 1 in 10x Chromium), and the other containing actual transcript sequence (read 2 in 10x Chromium).</p>
+<p>A classical scRNA-seq workflow contains four main steps:</p>
+<ul>
+<li>Mapping the cDNA fragments to a reference;</li>
+<li>Assigning reads to genes;</li>
+<li>Assigning reads to cells (cell barcode demultiplexing);</li>
+<li>Counting the number of unique RNA molecules (UMI deduplication).</li>
+</ul>
+<p>The outcome of this procedure is a gene/cell count matrix, which is used as an estimate of the number of RNA molecules in each cell for each gene.</p>
+</div>
+<div id="read-mapping-in-cell-ranger" class="section level4" number="0.1.3.2">
+<h4><span class="header-section-number">0.1.3.2</span> Read Mapping in Cell Ranger</h4>
+<p><a href="https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger">Cell Ranger</a> is the default tool for processing 10x Genomics Chromium scRNAseq data. It uses STAR aligner, which performs splicing-aware alignment of reads to the genome. After this, it uses the transcript annotation GTF to bucket the reads into exonic, intronic, and intergenic, and by whether the reads align (confidently) to the genome. A read is exonic if at least 50% of it intersects an exon, intronic if it is non-exonic and intersects an intron, and intergenic otherwise (shown below). Following the read type assignment, mapping quality adjustment is done: for reads that align to a single exonic locus but also align to 1 or more non-exonic loci, the exonic locus is prioritized and the read is considered to be confidently mapped to the exonic locus and given a maximum mapping quality score.</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant5"></span>
+<img src="figures/read_quant_5.png" alt="Classification of aligned reads in Cell Ranger" width="100%" />
+<p class="caption">
+Figure 5: Classification of aligned reads in Cell Ranger
+</p>
+</div>
+<p><code>Cell Ranger</code> further aligns exonic and intronic confidently mapped reads to annotated transcripts by examining their compatibility with the transcriptome. Reads are classified based on whether they are sense or antisense and based on whether they are exonic, intronic or whether their splicing pattern is compatible with transcript annotations associated with that gene. By default, reads that are transcriptomic (blue in the figure above) are carried forward to UMI counting.</p>
+<p>When the input to the assay consists of nuclei, a high percentage of the reads comes from the unspliced transcripts and align to introns. In order to count these intronic reads, the “cellranger count” and “cellranger multi” pipelines can be run with the option include-introns. If this option is used, any reads that map in the sense orientation to a single gene - which include the reads labeled transcriptomic (blue), exonic (light blue), and intronic (red) in the diagram above - are carried forward to UMI counting. The include-introns option eliminates the need for a custom “pre-mRNA” reference that defines the entire gene body to be an exon.
+Importantly, a read is considered uniquely mapping if it is compatible with only a single gene. Only uniquely mapping reads are carried forward to UMI counting; multimapping genes are discarded by <code>Cell Ranger</code>. In the Web Summary HTML output, the set of reads carried forward to UMI counting is referred to as “Reads mapped confidently to transcriptome”.</p>
+</div>
+<div id="cell-ranger-reference-preparation" class="section level4" number="0.1.3.3">
+<h4><span class="header-section-number">0.1.3.3</span> Cell Ranger Reference Preparation</h4>
+<p>Before we dive into the details of reference processing, it’s important to note how default <code>Cell Ranger</code> human and mouse references are prepared. <a href="https://www.ncbi.nlm.nih.gov/grc/help/definitions">Primary genome assembly</a> versions (i.e. without the ALT loci) are used for the alignment in all versions. Annotation GTF files are filtered, using the scripts that could be found <a href="https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#header">here</a>. The following biotypes are retained: protein coding, long noncoding RNA, antisense, and all biotypes belonging to BCR/TCR (i.e. V/D/J) genes (note that older <code>Cell Ranger</code> reference versions do not include the latter). All pseudogenes and small noncoding RNAs are removed.</p>
+<p>There are several versions of <code>Cell Ranger</code> reference that come pre-packaged with the software; 2020-A is the newest version of reference to date. All individual assembly and annotation combinations used by <code>Cell Ranger</code> previously are listed below. The unfiltered scRNAseq expression matrix generated using each reference is expected to contain the number of rows equal to the value in the “genes after filtering” column. Additionally, <code>Cell Ranger</code> also contains human + mouse combined reference, which is useful for experiments involving both human and mouse cells.</p>
+<table>
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Cell Ranger Reference</th>
+<th align="center">Species</th>
+<th align="center">Assembly/Annotation</th>
+<th align="center">Genes before filtering</th>
+<th align="center">Genes after filtering</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">2020-A</td>
+<td align="center">human</td>
+<td align="center">GRCh38/GENCODE v32</td>
+<td align="center">60668</td>
+<td align="center">36601</td>
+</tr>
+<tr class="even">
+<td align="center">2020-A</td>
+<td align="center">mouse</td>
+<td align="center">mm10/GENCODE vM23</td>
+<td align="center">55421</td>
+<td align="center">32285</td>
+</tr>
+<tr class="odd">
+<td align="center">3.0.0</td>
+<td align="center">human</td>
+<td align="center">GRCh38/Ensembl 93</td>
+<td align="center">58395</td>
+<td align="center">33538</td>
+</tr>
+<tr class="even">
+<td align="center">3.0.0</td>
+<td align="center">human</td>
+<td align="center">hg19/Ensembl 87</td>
+<td align="center">57905</td>
+<td align="center">32738</td>
+</tr>
+<tr class="odd">
+<td align="center">3.0.0</td>
+<td align="center">mouse</td>
+<td align="center">mm10/Ensembl 93</td>
+<td align="center">54232</td>
+<td align="center">31053</td>
+</tr>
+<tr class="even">
+<td align="center">2.1.0</td>
+<td align="center">mouse</td>
+<td align="center">mm10/Ensembl 84</td>
+<td align="center">47729</td>
+<td align="center">28692</td>
+</tr>
+<tr class="odd">
+<td align="center">1.2.0</td>
+<td align="center">human</td>
+<td align="center">GRCh38/Ensembl 84</td>
+<td align="center">60675</td>
+<td align="center">33694</td>
+</tr>
+<tr class="even">
+<td align="center">1.2.0</td>
+<td align="center">human</td>
+<td align="center">hg19/Ensembl 82</td>
+<td align="center">57905</td>
+<td align="center">32738</td>
+</tr>
+<tr class="odd">
+<td align="center">1.2.0</td>
+<td align="center">mouse</td>
+<td align="center">mm10/Ensembl 84</td>
+<td align="center">47729</td>
+<td align="center">27998</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="chromium-versions-and-cell-barcode-whitelists" class="section level4" number="0.1.3.4">
+<h4><span class="header-section-number">0.1.3.4</span> Chromium Versions and Cell Barcode Whitelists</h4>
+<p>Cellular barcode sequences are synthetic sequences attached to the beads that identify individual cells. The library of unique sequences is called a whitelist and depends on the Chromium library preparation kit version. The whitelist files are available from the <a href="https://github.com/10XGenomics/cellranger/tree/master/lib/python/cellranger/barcodes">Cell Ranger repository</a>. There are three whitelists used for Chromium: <code>737K-april-2014_rc.txt</code>, <code>737K-august-2016.txt</code>, and <code>3M-february-2018.txt</code>. CBs from the first list are 14 bp long, and two others are 16 bp. The table below provides cellular barcodes and UMI lengths, as well as appropriate whitelist files, for popular 10x single cell sequencing kits:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Chemistry</th>
+<th align="center">CB, bp</th>
+<th align="center">UMI, bp</th>
+<th align="center">Whitelist file</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">10x Chromium Single Cell 3’ v1</td>
+<td align="center">14</td>
+<td align="center">10</td>
+<td align="center">737K-april-2014_rc.txt</td>
+</tr>
+<tr class="even">
+<td align="center">10x Chromium Single Cell 3’ v2</td>
+<td align="center">16</td>
+<td align="center">10</td>
+<td align="center">737K-august-2016.txt</td>
+</tr>
+<tr class="odd">
+<td align="center">10x Chromium Single Cell 3’ v3</td>
+<td align="center">16</td>
+<td align="center">12</td>
+<td align="center">3M-february-2018.txt</td>
+</tr>
+<tr class="even">
+<td align="center">10x Chromium Single Cell 3’ v3.1 (Next GEM)</td>
+<td align="center">16</td>
+<td align="center">12</td>
+<td align="center">3M-february-2018.txt</td>
+</tr>
+<tr class="odd">
+<td align="center">10x Chromium Single Cell 5’ v1.1</td>
+<td align="center">16</td>
+<td align="center">10</td>
+<td align="center">737K-august-2016.txt</td>
+</tr>
+<tr class="even">
+<td align="center">10x Chromium Single Cell 5’ v2 (Next GEM)</td>
+<td align="center">16</td>
+<td align="center">10</td>
+<td align="center">737K-august-2016.txt</td>
+</tr>
+</tbody>
+</table>
+<p>Cell Ranger uses <a href="https://kb.10xgenomics.com/hc/en-us/articles/115003822406-How-does-Cell-Ranger-correct-barcode-sequencing-errors-">the following algorithm</a> to correct putative barcode sequences against the whitelist :</p>
+<ul>
+<li>Count the observed frequency in the dataset of every barcode on the whitelist;</li>
+<li>For every observed barcode in the dataset that is not on the whitelist, find whitelist sequences that are 1-Hamming-distance away. For each such sequence:
+<ul>
+<li>Compute the posterior probability that the observed barcode originated from the whitelist barcode with a sequencing error at the differing base (based on the base Q score);</li>
+<li>Replace the observed barcode with the whitelist barcode with the highest posterior probability that exceeds 0.975.</li>
+</ul></li>
+</ul>
+<p>The corrected barcodes are used for all downstream analysis and output files. In the output BAM file, the original uncorrected barcode is encoded in the CR tag, and the corrected barcode sequence is encoded in the CB tag. Reads that are not able to be assigned a corrected barcode will not have a CB tag.
+In case you’re wondering why 3M-february-2018.txt file actually contains over 6 million unique sequences, the explanation can be found <a href="https://kb.10xgenomics.com/hc/en-us/articles/360031133451-Why-is-there-a-discrepancy-in-the-3M-february-2018-txt-barcode-whitelist-">here</a>.</p>
+</div>
+<div id="umi-counting" class="section level4" number="0.1.3.5">
+<h4><span class="header-section-number">0.1.3.5</span> UMI Counting</h4>
+<p>What is usually referred to as “UMI counting” consists of read counting followed by PCR duplicate collapsing based on UMI sequences. Before counting UMIs, Cell Ranger attempts to correct for sequencing errors in the UMI sequences. Reads that were confidently mapped to the transcriptome are placed into groups that share the same barcode, UMI, and gene annotation. If two groups of reads have the same barcode and gene, but their UMIs differ by a single base (i.e., are <a href="https://en.wikipedia.org/wiki/Hamming_distance">Hamming distance</a> 1 apart), then one of the UMIs was likely introduced by a substitution error in sequencing. In this case, the UMI of the less-supported read group is corrected to the UMI with higher support.</p>
+<p>Cell Ranger again groups the reads by barcode, UMI (possibly corrected), and gene annotation. If two or more groups of reads have the same barcode and UMI, but different gene annotations, the gene annotation with the most supporting reads is kept for UMI counting, and the other read groups are discarded. In case of a tie for maximal read support, all read groups are discarded, as the gene cannot be confidently assigned.</p>
+<p>After these two filtering steps, each observed barcode, UMI, gene combination is recorded as a UMI count in the unfiltered feature-barcode (i.e. gene-cell) matrix. The number of reads supporting each counted UMI is also recorded in the molecule info file.</p>
+</div>
+<div id="cell-filtering" class="section level4" number="0.1.3.6">
+<h4><span class="header-section-number">0.1.3.6</span> Cell Filtering</h4>
+<p>Unfiltered (“raw”) feature-barcode matrix contains many columns that are in fact empty droplets. Gene expression counts in these droplets are not zero due to technical noise, e.g. the presence of ambient RNA from broken cells. However, they can usually be distinguished from <em>bona fide</em> cells by the amount of RNA present. There are two algorithms implemented for this cell filtering in <code>Cell Ranger</code>, that we will refer to as “Cell Ranger 2.2” and “Cell Ranger 3.0” filtering.</p>
+<p>The original algorithm (Cell Ranger 2.2) identified the first “knee point” in the “barcode count vs UMIs per barcode” plot. Cell Ranger 3.0 introduced an improved cell-calling algorithm that is better able to identify populations of low RNA content cells, especially when low RNA content cells are mixed into a population of high RNA content cells. For example, tumor samples often contain large tumor cells mixed with smaller tumor infiltrating lymphocytes (TIL) and researchers may be particularly interested in the TIL population. The new algorithm is based on the EmptyDrops method (Lun et al., 2018).</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant6"></span>
+<img src="figures/read_quant_6.png" alt="Knee plots and empty drop cutoffs identified by the Cell Ranger 2.2 and 3.0 filtering algorithms" width="100%" />
+<p class="caption">
+Figure 6: Knee plots and empty drop cutoffs identified by the Cell Ranger 2.2 and 3.0 filtering algorithms
+</p>
+</div>
+</div>
+<div id="pseudoalignment-based-methods" class="section level4" number="0.1.3.7">
+<h4><span class="header-section-number">0.1.3.7</span> Pseudoalignment-based Methods</h4>
+<p>Pseudoalignment (see above) can also be used to quickly quantify scRNA-seq datasets. Currently, there are two software suites that implement this approach: <a href="https://www.kallistobus.tools/">kallisto/BUStools</a>, and <a href="https://salmon.readthedocs.io/en/latest/alevin.html">Salmon/Alevin/Alevin-fry</a>. In order to preserve the modular approach, both ecosystems introduced their own format that allows the storage of quantification results: <code>kallisto</code>/<code>BUStools</code> introduced the BUS (Barcode, UMI, and Set) file format (Melsted et al, 2019), while <code>Alevin</code>/<code>Alevin-fry</code> is using RAD format for the same purpose (Srivastava et al, 2019).</p>
+<p>Both <code>kallisto</code>/<code>BUStools</code> and <code>Alevin</code>/<code>Alevin-fry</code> implement their own algorithms for cell barcode and UMI error correction and demultiplexing - for example, <code>Alevin</code> does not require (but can use) a cell barcode whitelist. However, the biggest difference from alignment-based methods stems from the lower accuracy of pseudoalignment, and the inclusion of multimapping reads.</p>
+<p><code>kallisto</code>/<code>BUStools</code> supports many sequencing technologies, including low-throughput ones like CEL-seq, CEL-seq2, and SMART-seq. The full list of supported experiments can be printed with <code>kb --list</code>. <code>Alevin</code> currently supports only the two most popular droplet based single-cell protocols, Drop-seq and 10x Chromium.</p>
+<p>In general, <code>kallisto</code>/<code>BUStools</code> and <code>Alevin</code> are extremely efficient, allowing processing of human or mouse datasets with 2-4 Gb of RAM and at least an order of magnitude faster than <code>Cell Ranger</code>. Both tools also handle multimapping reads correctly, reducing the quantification bias for the affected genes. However, it has been noted in several publications that pseudoalignment-based methods falsely map reads from retained introns to the transcriptome (Melsted et al, 2021; Srivastava et al, 2020). It is <a href="https://t.co/maED24oFeA?amp=1">well known</a> that scRNA-seq experiments, and, in particular, single-nucleus RNA-seq can contain a very high percentage of transcripts with retained introns. This erroneous assignment makes hundreds of non-expressed genes look weakly expressed, which may substantially influence the downstream analysis, particularly marker selection (Kaminow et al, 2021). Thus, there is still a push to develop methods that would be at least as accurate and much faster than <code>Cell Ranger</code>.</p>
+</div>
+</div>
+<div id="starsolo-and-alevin-full-decoy-high-speed-and-high-accuracy" class="section level3" number="0.1.4">
+<h3><span class="header-section-number">0.1.4</span> STARsolo and Alevin-full-decoy: High Speed and High Accuracy</h3>
+<p><code>STARsolo</code> is a standalone pipeline that is a part of <code>STAR</code> RNA-seq aligner mentioned in this chapter previously. It was developed with a goal to generate results that are very similar to <code>Cell Ranger</code>, while remaining computationally efficient. Normally, <code>STARsolo</code> is several times faster than <code>Cell Ranger</code> on the same dataset. <code>STARsolo</code> methods for UMI collapsing, cell barcode demultiplexing, and cell filtering are purposefully re-implementing the algorithms used by <code>Cell Ranger</code>. Starting from the <code>STAR</code> version 2.7.9a, <code>STARsolo</code> is also capable of quantifying multimapping read correctly, making it a very attractive option for fast and accurate scRNA-seq processing (Kaminow et al, 2021). Additional benefit of <code>STARsolo</code> is its flexible implementation of cellular barcode and UMI search: knowing a relative location within a read, and length of each sequence, it’s possible to process the data generated by most scRNA-seq approaches.</p>
+<p><code>Alevin</code> developers has also acknowledged the above-mentioned problem of intronic reads, developing a special solution which involved the use of so-called <a href="https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment">decoy sequences</a>. In a recent <code>STARsolo</code> preprint, <code>Alevin</code> with full genome decoy has shown accuracy that is very similar to that of <code>STARsolo</code> or <code>Cell Ranger</code> (Kaminow et al, 2021).</p>
+</div>
+<div id="notes-on-non-model-organisms" class="section level3" number="0.1.5">
+<h3><span class="header-section-number">0.1.5</span> Notes on Non-model Organisms</h3>
+<p>It is becoming increasingly popular to use single-cell RNA-seq for characterization of less known multicellular organisms, especially as a part of de novo genome assembly projects of key species. Two things are important to note here. First of all, a correctly assembled and well-annotated mitochondrial sequence is crucial, because mitochondrial reads constitute a substantial fraction of every scRNA-seq library and are widely used for experiment quality control (see Introduction to scRNA-seq). A recent effort has put together a compendium of carefully assembled mitochondrial sequences for many non-model vertebrates (Formenti et al, 2021). <a href="http://mitos2.bioinf.uni-leipzig.de/index.py">MITOS2</a> is a specialized server that can be used to automatically generate good quality mitochondrial annotations for metazoans.</p>
+<p>Second, it is important to notice that most annotation methods for de novo sequenced genomes generate gene models that do not include UTR sequences. Both 3’ and 5’ scRNA-seq methods are heavily biased in their read distribution towards either end of the gene (figure below). Thus, using gene annotation that does not have UTR sequences will dramatically distort the results of quantification and analysis.</p>
+<div class="figure" style="text-align: center"><span id="fig:Read-quant7"></span>
+<img src="figures/read_quant_7.png" alt="Typical read coverage in 3' and 5' 10x scRNA-seq experiments" width="100%" />
+<p class="caption">
+Figure 7: Typical read coverage in 3’ and 5’ 10x scRNA-seq experiments
+</p>
+</div>
+</div>
+<div id="brief-summary-and-processing-recommendations" class="section level3" number="0.1.6">
+<h3><span class="header-section-number">0.1.6</span> Brief Summary and Processing Recommendations</h3>
+<p><code>Cell Ranger</code> is the default software suite offered by 10x Genomics, and it remains the most widely used tool for read alignment and quantification. If you lack experience in bioinformatics, or have many other samples processed with <code>Cell Ranger</code>, stick with it. We would encourage you to use the latest <code>Cell Ranger</code> version, and the latest annotation files it comes with (see 3.3 above). At the same time, <code>STARsolo</code> and <code>Alevin-full_decoy</code> offer great computational speed-up and correct processing of multimappers, which reduces the quantification bias while retaining very high compatibility with <code>Cell Ranger</code>. They probably are the best option for users experienced with terminal tools. Finally, if you’re working with a poorly annotated genome, make sure your gene models include UTRs, and that you have a well-assembled and annotated mitochondrion.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "section"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

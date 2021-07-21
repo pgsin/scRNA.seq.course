@@ -1,0 +1,404 @@
+---
+output: html_document
+---
+
+# Basic Quality Control (QC) and Exploration of scRNA-seq Datasets
+
+## Dataset Contruction and QC
+
+### Introduction
+
+Once gene expression has been quantified it is summarized as an __expression matrix__ where each row corresponds to a gene (or transcript) and each column corresponds to a single cell. In the next step, the matrix should be examined to remove poor quality cells. Failure to remove low quality cells at this stage may add technical noise which has the potential to obscure the biological signals of interest in the downstream analysis. 
+
+Since there is currently no standard method for performing scRNA-seq, the expected values for the various QC measures that will be presented here can vary substantially from experiment to experiment. Thus, to perform QC we will be looking for cells which are outliers with respect to the rest of the dataset rather than comparing to independent quality standards. Consequently, care should be taken when comparing quality metrics across datasets sequenced using different protocols.
+
+### Tung Dataset
+
+To illustrate cell QC, we consider a [dataset](http://jdblischak.github.io/singleCellSeq/analysis/) of induced pluripotent stem cells generated from three different individuals [@Tung2017-ba] in [Yoav Gilad](http://giladlab.uchicago.edu/)'s lab at the University of Chicago. The experiments were carried out on the Fluidigm C1 platform and to facilitate the quantification both unique molecular identifiers (UMIs) and ERCC _spike-ins_ were used. Due to rapid increase in droplet-based method use, spike-ins are not widely used anymore; however, they can serve as an informative control for low throughput methods. The data files are located in the `tung` folder in your working directory. These files are the copies of the original files made on the 15/03/16. We will use these copies for reproducibility purposes.
+
+```{r exprs-qc0, echo=FALSE}
+library(knitr)
+opts_chunk$set(cache = TRUE, out.width='100%', fig.align = 'center')
+```
+
+We'll use `scater` package, as well as `AnnotationDbi` and `org.Hs.eg.db` to convert ENSEMBL IDs into gene names (symbols). 
+
+```{r exprs-qc1, message=FALSE, warning=FALSE}
+library(scater)
+library(SingleCellExperiment)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(EnsDb.Hsapiens.v86)
+```
+
+Next we'll read in the matrix and the per-cell annotation. The latter is converted to factors on the fly.
+
+```{r exprs-qc2}
+molecules <- read.delim("data/tung/molecules.txt",row.names=1)
+annotation <- read.delim("data/tung/annotation.txt",stringsAsFactors = T)
+```
+
+Take a quick look at the dataset: 
+
+```{r exprs-qc3}
+head(molecules[,1:3])
+head(annotation)
+```
+
+Here we set `altExp` to contain ERCC, removing ERCC features from the main object:
+
+```{r exprs-qc4}
+umi <- SingleCellExperiment(assays = list(counts = as.matrix(molecules)), colData = annotation)
+altExp(umi,"ERCC") <- umi[grep("^ERCC-",rownames(umi)), ]
+umi <- umi[grep("^ERCC-",rownames(umi),invert = T), ]
+```
+
+Now, let's map ENSEMBL IDs to gene symbols. From the `table` command, we can see that most genes were annotated; however, 846 returned "NA". By default, `mapIds` returs one symbol per ID; this behaviour can be changed using `multiVals` argument. 
+
+```{r exprs-qc4b}
+gene_names <- mapIds(org.Hs.eg.db, keys=rownames(umi), keytype="ENSEMBL", columns="SYMBOL",column="SYMBOL")
+rowData(umi)$SYMBOL <- gene_names
+table(is.na(gene_names))
+```
+
+Let's remove all genes for which no symbols were found: 
+
+```{r}
+umi <- umi[! is.na(rowData(umi)$SYMBOL),]
+```
+
+Let's check if we can find mitochondrial proteins in the newly annotated symbols.
+
+```{r}
+grep("^MT-",rowData(umi)$SYMBOL,value = T)
+```
+
+Strangely, this returns nothing. Similar command to find ribosomal proteins (which start with RPL or RPS) works as expected:
+
+```{r}
+grep("^RP[LS]",rowData(umi)$SYMBOL,value = T)
+```
+
+Quick search for mitochondrial protein *ATP8*, which is also called *MT-ATP8*, shows that the name does not contain "MT-". However, the correct feature (ENSEMBL ID *ENSG00000228253*) is present in our annotation.
+
+```{r}
+grep("ATP8",rowData(umi)$SYMBOL,value = T)
+```
+
+Most modern annotations, e.g. ones used by `Cell Ranger`, will have mitochondrial genes names that start with *MT-*. For some reason, the one we have found does not. Annotation problems in general are very common and should be always considered carefully. In our case, we also can't find the location of genes since chromosomes are not supported in `org.Hs.eg.db` - there are no genome location columns in this database:
+
+```{r}
+columns(org.Hs.eg.db)
+```
+
+Let's try a different, more detailed database - `EnsDb.Hsapiens.v86`. Using this resource, we can find 13 protein-coding genes located in the mitochondrion:  
+
+```{r exprs-qc5}
+ensdb_genes <- genes(EnsDb.Hsapiens.v86)
+MT_names <- ensdb_genes[seqnames(ensdb_genes) == "MT"]$gene_id
+is_mito <- rownames(umi) %in% MT_names
+table(is_mito)
+```
+
+
+### Basic QC
+
+The following `scater` functions allow us to add per-cell and per-gene metrics useful for dataset evaluation. Most popular metrics per cell are total number of counts (UMIs), total number of detected genes, total number of mitochondrial counts, percent of mitochondrial counts, etc. 
+
+```{r exprs-qc6}
+umi_cell <- perCellQCMetrics(umi,subsets=list(Mito=is_mito))
+umi_feature <- perFeatureQCMetrics(umi)
+head(umi_cell)
+head(umi_feature)
+```
+
+We can now use the functions that add the metrics calculated above to per-cell and per-gene metadata:
+
+```{r exprs-qc6b}
+umi <- addPerCellQC(umi, subsets=list(Mito=is_mito))
+umi <- addPerFeatureQC(umi)
+```
+
+Manual filtering can use any cutoff we choose. In order to find a good value, it's good to look at the distribution:
+
+```{r exprs-qc7}
+hist(
+    umi$total,
+    breaks = 100
+)
+abline(v = 25000, col = "red")
+```
+
+```{r exprs-qc8}
+hist(
+  umi_cell$detected,
+  breaks = 100
+)
+abline(v = 7000, col = "red")
+```
+
+Sometimes it's hard to come up with an obvious filtering cutoff. In this case, adaptive threshold can help us identify points that are more than 3 [median absolute deviations](https://en.wikipedia.org/wiki/Median_absolute_deviation) (MADs) away from the median in any of the variables we use for QC. Be careful to specify if the correct direction of the deviation: indeed, low number of detected genes, but high MT gene percentage, are hallmarks of a low quality cell:
+
+```{r exprs-qc9}
+qc.lib2 <- isOutlier(umi_cell$sum, log=TRUE, type="lower")
+attr(qc.lib2, "thresholds")
+qc.nexprs2 <- isOutlier(umi_cell$detected, log=TRUE, type="lower")
+attr(qc.nexprs2, "thresholds")
+qc.spike2 <- isOutlier(umi_cell$altexps_ERCC_percent, type="higher")
+attr(qc.spike2, "thresholds")
+qc.mito2 <- isOutlier(umi_cell$subsets_Mito_percent, type="higher")
+attr(qc.mito2, "thresholds")
+discard2 <- qc.lib2 | qc.nexprs2 | qc.spike2 | qc.mito2
+DataFrame(LibSize=sum(qc.lib2), NExprs=sum(qc.nexprs2), SpikeProp=sum(qc.spike2), MitoProp=sum(qc.mito2), Total=sum(discard2))
+```
+
+All the actions performed above could be done in one `scater` command, `quickPerCellQC`:
+
+```{r exprs-qc10}
+reasons <- quickPerCellQC(umi_cell, sub.fields=c("subsets_Mito_percent", "altexps_ERCC_percent"))
+colSums(as.matrix(reasons))
+```
+
+Let's add another metadata column that would keep the information about whether a cell is discarded or not: 
+
+```{r exprs-qc11}
+umi$discard <- reasons$discard
+```
+
+Plotting various coldata (cell-level medadata) assays against each other allows us to illustrate the dependencies between them. For example, cells with high mitochondrial content usually are considered dead or dying; these cells also usually have low overall UMI counts and number of detected genes. 
+
+```{r exprs-qc12}
+plotColData(umi, x="sum", y="subsets_Mito_percent", colour_by="discard")
+plotColData(umi, x="sum", y="detected", colour_by="discard")
+plotColData(umi, x="altexps_ERCC_percent", y="subsets_Mito_percent",colour_by="discard")
+```
+
+We can also plot coldata with splitting by batches to see if there are substantial batch-specific differences: 
+
+```{r exprs-qc13}
+library(scales)
+plotColData(umi, x="sum", y="detected", colour_by="discard", other_fields = "individual") + 
+  facet_wrap(~individual) + scale_x_continuous(labels = unit_format(unit = "k", scale = 1e-3))
+plotColData(umi, x="sum", y="detected", colour_by="discard", other_fields = "replicate") + 
+  facet_wrap(~replicate)  + scale_x_continuous(labels = unit_format(unit = "k", scale = 1e-3))
+```
+
+### Highly Expressed Genes
+
+Let's take a look at the most expressed genes in the whole dataset. We will use symbols we obtained above. Most of the genes we see are mitochondrial or ribosomal proteins, which is pretty typical for most scRNA-seq datasets. 
+
+```{r exprs-qc14}
+plotHighestExprs(umi, exprs_values = "counts", 
+                 feature_names_to_plot = "SYMBOL", colour_cells_by="detected")
+```
+
+Let's keep the genes which were detected (expression value > 1) in 2 or more cells. We'll discard approximately 4,000 weakly expressed genes. 
+
+```{r exprs-qc15}
+keep_feature <- nexprs(umi,byrow = TRUE,detection_limit = 1) >= 2
+rowData(umi)$discard <- ! keep_feature
+table(rowData(umi)$discard)
+``` 
+
+Let's make a new assay, `logcounts_raw`, which will contain log2-transformed counts with added pseudocount of 1.
+
+```{r exprs-qc16}
+assay(umi, "logcounts_raw") <- log2(counts(umi) + 1)
+```
+
+Finally, let's save the `SingleCellExperiment` object with all the fields we have added to the per-cell metadata, and new assays (`logcounts_raw`):
+
+```{r exprs-qc17}
+saveRDS(umi, file = "data/tung/umi.rds")
+```
+
+## Data Visualization and Dimensionality Reduction
+
+### Introduction
+
+In this chapter we will continue to work with the filtered `Tung` dataset produced in the previous chapter. We will explore different ways of visualizing the data to allow you to asses what happened to the expression matrix after the quality control step. `scater` package provides several very useful functions to simplify visualisation. 
+
+One important aspect of single-cell RNA-seq is to control for batch effects. Batch effects are technical artefacts that are added to the samples during handling. For example, if two sets of samples were prepared in different labs or even on different days in the same lab, then we may observe greater similarities between the samples that were handled together. In the worst case scenario, batch effects may be [mistaken](http://f1000research.com/articles/4-121/v1) for true biological variation. The `Tung` data allows us to explore these issues in a controlled manner since some of the salient aspects of how the samples were handled have been recorded. Ideally, we expect to see batches from the same individual grouping together and distinct groups corresponding to each individual. 
+
+Let's create another `SingleCellExperiment` object, `umi.qc`, in which remove unnecessary poorly expressed genes and low quality cells.
+
+```{r exprs-over1}
+umi.qc <- umi[! rowData(umi)$discard,! colData(umi)$discard]
+```
+
+### PCA plot
+
+The easiest way to overview the data is by transforming it using the principal component analysis and then visualize the first two principal components.
+
+[Principal component analysis (PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is a statistical procedure that uses a transformation to convert a set of observations into a set of linearly uncorrelated (orthogonal) variables called principal components (PCs). The number of principal components is less than or equal to the number of original variables.
+
+Mathematically, the PCs correspond to the [eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) of the covariance matrix. The eigenvectors are sorted by eigenvalue so that the first principal component accounts for as much of the variability in the data as possible, and each succeeding component in turn has the highest variance possible under the constraint that it is orthogonal to the preceding components (the figure below is taken from [here](http://www.nlpca.org/pca_principal_component_analysis.html)).
+
+```{r exprs-over2, echo=FALSE, fig.cap="Schematic representation of PCA dimensionality reduction", out.width='100%'}
+knitr::include_graphics("figures/pca.png")
+```
+
+#### Before QC
+
+Without log-transformation or normalization, PCA plot fails to separate the datasets by replicate or individual. We mostly see the effects of sequencing depth - samples (cells) with lots of expression, and particularly highly expressed genes, dominate the PCs: 
+
+```{r exprs-over3, fig.cap = "PCA plot of the Tung data (raw counts)"}
+umi <- runPCA(umi, exprs_values = "counts")
+dim(reducedDim(umi, "PCA"))
+plotPCA(umi, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+With log-transformation, we equalize the large difference between strongly and weakly expressed genes, and immediately see cells form groups by replicate, individual, and sequencing depth. When PCA is re-run, reducedDim object in `umi` is overwritten. 
+
+```{r exprs-over4, fig.cap = "PCA plot of the tung data (non-normalized logcounts)"}
+umi <- runPCA(umi, exprs_values = "logcounts_raw")
+dim(reducedDim(umi, "PCA"))
+plotPCA(umi, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+Clearly log-transformation is benefitial for our data - it reduces the variance on the first principal component and already separates some biological effects. Moreover, it makes the distribution of the expression values more normal. In the following analysis and chapters we will be using log-transformed raw counts by default.
+
+__However, note that just a log-transformation is not enough to account for different technical factors between the cells (e.g. sequencing depth). Therefore, please do not use `logcounts_raw` for your downstream analysis, instead as a minimum suitable data use the `logcounts` slot of the `SingleCellExperiment` object, which not just log-transformed, but also normalised by library size (e.g. CPM normalisation). In the course we use `logcounts_raw` only for demonstration purposes!__
+
+#### After QC
+
+Let's do the same analysis as above, but using `umi.qc` dataframe instead of the full `umi`: 
+
+```{r exprs-over5, fig.cap = "PCA plot of the Tung data (non-normalized log counts, QC-filtered)"}
+umi.qc <- runPCA(umi.qc, exprs_values = "logcounts_raw")
+dim(reducedDim(umi.qc, "PCA"))
+plotPCA(umi.qc, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+Comparing figures above, it is clear that after quality control the NA19098.r2 cells no longer form a group of outliers.
+
+By default only the top 500 most variable genes are used by `scater` to calculate the PCA. This can be adjusted by changing the `ntop` argument. 
+
+**Exercise 1**
+How do the PCA plots change if when all 14,154 genes are used? Or when only top 50 genes are used? Why does the fraction of variance accounted for by the first PC change so dramatically?
+
+__Hint__ Use `ntop` argument of the `plotPCA` function.
+
+<details><summary>Answer</summary>
+
+```{r exprs-over6, fig.cap = "PCA plot of the tung data (14214 genes)"}
+umi.qc <- runPCA(umi.qc, exprs_values = "logcounts_raw",ntop = nrow(umi.qc))
+plotPCA(umi.qc, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+```{r exprs-over7, expr-overview-pca-after-qc-exercise1-2, fig.cap = "PCA plot of the tung data (50 genes)"}
+umi.qc <- runPCA(umi.qc, exprs_values = "logcounts_raw",ntop = 50)
+plotPCA(umi.qc, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+If your answers are different please compare your code with [ours](https://github.com/hemberg-lab/scRNA.seq.course/blob/master/07-exprs-overview.Rmd) (you need to search for this exercise in the opened file).
+</details>
+
+### tSNE Map
+
+An alternative to PCA for visualizing scRNA-seq data is a tSNE plot. [tSNE](https://lvdmaaten.github.io/tsne/) (t-Distributed Stochastic Neighbor Embedding) combines dimensionality reduction (e.g. PCA) with random walks on the nearest-neighbour network to map high dimensional data (i.e. our 14,154-dimensional expression matrix) to a 2-dimensional space while preserving local distances between cells. In contrast with PCA, tSNE is a stochastic algorithm which means running the method multiple times on the same dataset will result in different plots. Due to the non-linear and stochastic nature of the algorithm, tSNE is more difficult to intuitively interpret tSNE. To ensure reproducibility, we fix the "seed" of the random-number generator in the code below so that we always get the same plot. 
+
+
+#### Before QC
+
+```{r exprs-over8, fig.cap = "tSNE map of the tung data"}
+set.seed(123456)
+umi <- runTSNE(umi, exprs_values = "logcounts_raw", perplexity = 130)
+plotTSNE(umi, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+#### After QC
+
+```{r exprs-over9, fig.cap = "tSNE map of the tung data"}
+set.seed(123456)
+umi.qc <- runTSNE(umi.qc, exprs_values = "logcounts_raw", perplexity = 130)
+plotTSNE(umi.qc, colour_by = "batch", size_by = "detected", shape_by = "individual")
+```
+
+Interpreting PCA and tSNE plots is often challenging and due to their stochastic and non-linear nature, they are less intuitive. However, in this case it is clear that they provide a similar picture of the data. Comparing figures above, it is again clear that the samples from NA19098.r2 are no longer outliers after the QC filtering.
+
+Furthermore tSNE requires you to provide a value of `perplexity` which reflects the number of neighbours used to build the nearest-neighbour network; a high value creates a dense network which clumps cells together while a low value makes the network more sparse allowing groups of cells to separate from each other. `scater` uses a default perplexity of the total number of cells divided by five (rounded down).
+
+You can read more about the pitfalls of using tSNE [here](http://distill.pub/2016/misread-tsne/). A more recent publication entitled ["The art of using t-SNE for single-cell transcriptomics"](https://www.nature.com/articles/s41467-019-13056-x) discusses similarities and differences between t-SNE and UMAP, finding that most observed differences are due to initialization, and gives recommendataion on parameter tuning when visualizing scRNA-seq datasets of different sizes.  
+
+**Exercise 2**
+How do the tSNE plots change when a perplexity of 10 or 200 is used? How does the choice of perplexity affect the interpretation of the results?
+
+<details><summary>Answer</summary>
+
+```{r exprs-over10, fig.cap = "tSNE map of the tung data (perplexity = 10)", echo=FALSE}
+set.seed(123456)
+umi.qc <- runTSNE(umi.qc, exprs_values = "logcounts_raw", perplexity = 10)
+plotTSNE(umi.qc, colour_by = "replicate", size_by = "detected", shape_by = "individual")
+```
+
+```{r exprs-over11, fig.cap = "tSNE map of the tung data (perplexity = 200)", echo=FALSE}
+set.seed(123456)
+umi.qc <- runTSNE(umi.qc, exprs_values = "logcounts_raw", perplexity = 200)
+plotTSNE(umi.qc, colour_by = "replicate", size_by = "detected", shape_by = "individual")
+```
+
+</details>
+
+## Identifying Confounding Factors
+
+### Introduction
+
+There is a large number of potential confounders, artifacts and biases in scRNA-seq data. One of the main challenges in analyzing scRNA-seq data stems from the fact that it is difficult to carry out a true technical replicate (why?) to distinguish biological and technical variability. In the previous chapters we considered batch effects and in this chapter we will continue to explore how experimental artifacts can be identified and removed. We will continue using the `scater` package since it provides a set of methods specifically for quality control of experimental and explanatory variables. Moreover, we will continue to work with the Blischak data that was used in the previous chapter.
+
+Our `umi.qc` dataset contains filtered cells and genes. Our next step is to explore technical drivers of variability in the data to inform data normalisation before downstream analysis.
+
+### Correlations with PCs
+
+Let's first look again at the PCA plot of the QC-filtered dataset:
+
+```{r confounders2, fig.cap = "PCA plot of the tung data"}
+umi.qc <- runPCA(umi.qc, exprs_values = "logcounts_raw")
+dim(reducedDim(umi.qc, "PCA"))
+plotPCA(umi.qc, colour_by = "batch", size_by = "sum", shape_by = "individual")
+```
+
+`scater` allows one to identify principal components that correlate with experimental and QC variables of interest (it ranks principle components by $R^2$ from a linear model regressing PC value against the variable of interest).
+
+Let's test whether some of the variables correlate with any of the PCs.
+
+#### Detected genes
+
+```{r confounders3, fig.cap = "PC correlation with the number of detected genes", fig.asp=1}
+logcounts(umi.qc) <- assay(umi.qc, "logcounts_raw")
+getExplanatoryPCs(umi.qc,variables = "sum")
+plotExplanatoryPCs(umi.qc,variables = "sum") 
+logcounts(umi.qc) <- NULL
+```
+
+Indeed, we can see that `PC1` can be almost completely (86%) explained by the total UMI counts (sequencing depth). In fact, it was also visible on the PCA plot above. This is a well-known issue in scRNA-seq and was described [here](http://biorxiv.org/content/early/2015/12/27/025528).
+
+### Explanatory Variables
+
+`scater` can also compute the marginal $R^2$ for each variable when fitting a linear model regressing expression values for each gene against just that variable, and display a density plot of the gene-wise marginal $R^2$ values for the variables.
+
+```{r confounders4, fig.cap = "Explanatory variables"}
+plotExplanatoryVariables(umi.qc,exprs_values = "logcounts_raw",
+                         variables = c("detected","sum","batch",
+                                       "individual","altexps_ERCC_percent","subsets_Mito_percent"))
+```
+
+This analysis indicates that the number of detected genes (again) and also the sequencing depth (number of counts) have substantial explanatory power for many genes, so these variables are good candidates for conditioning out in a normalisation step, or including in downstream statistical models. Expression of ERCCs also appears to be an important explanatory variable and one notable feature of the above plot is that batch explains more than individual. What does that tell us about the technical and biological variability of the data?
+
+### Other Confounders
+
+In addition to correcting for batch, there are other factors that one may want to compensate for. As with batch correction, these adjustments require extrinsic information. One popular method is [scLVM](https://github.com/PMBio/scLVM) which allows you to identify and subtract the effect from processes such as cell-cycle or apoptosis.
+
+In addition, protocols may differ in terms of their coverage of each transcript, their bias based on the average content of __A/T__ nucleotides, or their ability to capture short transcripts. Ideally, we would like to compensate for all of these differences and biases.
+
+### Exercise
+
+Perform the same analysis with read counts of the Blischak data. Use `tung/reads.rds` file to load the reads SCESet object. Once you have finished please compare your results to ours (next chapter).
+
+### sessionInfo()
+
+<details><summary>View session info</summary>
+```{r echo=FALSE}
+sessionInfo()
+```
+</details>
