@@ -381,7 +381,7 @@ monaco.ref <- celldex::MonacoImmuneData()
 Let's convert our Seurat object to single cell experiment (SCE) for convenience. After this, using `SingleR` becomes very easy: 
 
 ```{r}
-sce <- as.SingleCellExperiment(srat)
+sce <- as.SingleCellExperiment(DietSeurat(srat))
 sce
 
 monaco.main <- SingleR(test = sce,assay.type.test = 1,ref = monaco.ref,labels = monaco.ref$label.main)
