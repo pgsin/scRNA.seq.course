@@ -10,7 +10,7 @@ jobs:
     
     runs-on: self-hosted
     container:
-      image: quay.io/cellgeni/scrna-seq-course:v5.11
+      image: quay.io/cellgeni/scrna-seq-course:v5.12
       options: --user root
 
     env:
