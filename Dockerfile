@@ -160,7 +160,8 @@ RUN Rscript -e 'devtools::install_github(c( \
 RUN pip install --upgrade --no-cache \
     cutadapt magic-impute awscli==1.16.14 \
     jupyter-server-proxy \
-    jupyter-rsession-proxy rpy2
+    jupyter-rsession-proxy rpy2 \
+    leidenalg
 
 # JupyterLab extension to launch registered applications in the python package
 RUN jupyter labextension install @jupyterlab/server-proxy
