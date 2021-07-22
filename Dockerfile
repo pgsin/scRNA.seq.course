@@ -139,21 +139,22 @@ RUN Rscript -e 'install.packages(c( \
     "snow", "bit64", "permute", "mixtools", "lars", "ica", "fpc", "ape", \
     "pbapply", "irlba", "dtw", "plotly", "metap", "lmtest", "fitdistrplus", "png", \
     "foreach", "vegan", "tidyr", "withr", "magrittr", "rmpi", "knitr", \
-    "statmod", "mvoutlier", "penalized", "mgcv", "corrplot", \
-    "lsa", "uwot", "optparse", "DrImpute", "alluvial"))'
+    "statmod", "mvoutlier", "penalized", "mgcv", "corrplot", "scales", \
+    "lsa", "uwot", "optparse", "DrImpute", "alluvial", "dplyr", "RColorBrewer"))'
 
 # Install Bioconductor packages
 RUN Rscript -e 'BiocManager::install(c( \
     "graph", "RBGL", "gtools", "xtable", "pcaMethods", "limma", "SingleCellExperiment", \
     "Rhdf5lib", "scater", "scran", "RUVSeq", "sva", "SC3", "TSCAN", "monocle", "destiny", \
     "DESeq2", "edgeR", "MAST", "scmap", "biomaRt", "MultiAssayExperiment", "SummarizedExperiment", \
-    "beachmat", "DropletUtils", "EnsDb.Hsapiens.v86", "batchelor"))'
+    "beachmat", "DropletUtils", "EnsDb.Hsapiens.v86", "batchelor", "SingleR", "celldex", \
+    "glmGamPoi", "AnnotationDbi", "org.Hs.eg.db", "EnsDb.Hsapiens.v86"))'
 
 # Install github packages
 RUN Rscript -e 'devtools::install_github(c( \
     "immunogenomics/harmony", "tallulandrews/M3Drop", "hemberg-lab/scRNA.seq.funcs", \
     "Vivianstats/scImpute", "theislab/kBET", "kieranrcampbell/ouija", "hemberg-lab/scfind", \
-    "cole-trapnell-lab/monocle3"))'
+    "cole-trapnell-lab/monocle3", "mojaveazure/seurat-disk", "satijalab/seurat-wrappers"))'
 
 # Install python packages
 RUN pip install --upgrade --no-cache \
