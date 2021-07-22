@@ -43,7 +43,7 @@ jobs:
           
       - name: Render bookdown Rmd files for site generation
         working-directory: ${{ env.BUILD_DIR }}
-        run: Rscript -e "bookdown::render_book('index.html', 'bookdown::gitbook')"
+        run: Rscript -e "bookdown::render_book('index.Rmd', 'bookdown::gitbook')"
         
       - name: Upload rendered bookdown files to S3
         run: aws s3 sync $BUILD_DIR/website s3://test-course-bucket/website/ --endpoint-url ${{ secrets.AWS_S3_ENDPOINT }} --acl public-read
