@@ -61,7 +61,6 @@ Let's load all the necessary libraries:
 ```{r int5,warning=F, message=F}
 library(Seurat)
 library(SeuratDisk)
-library(SeuratData)
 library(SeuratWrappers)
 
 library(patchwork)
