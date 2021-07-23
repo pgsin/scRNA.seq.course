@@ -139,7 +139,7 @@ RUN Rscript -e 'install.packages(c( \
     "snow", "bit64", "permute", "mixtools", "lars", "ica", "fpc", "ape", \
     "pbapply", "irlba", "dtw", "plotly", "metap", "lmtest", "fitdistrplus", "png", \
     "foreach", "vegan", "tidyr", "withr", "magrittr", "rmpi", "knitr", \
-    "statmod", "mvoutlier", "penalized", "mgcv", "corrplot", "scales", \
+    "statmod", "mvoutlier", "penalized", "mgcv", "corrplot", "scales", "rliger", \
     "lsa", "uwot", "optparse", "DrImpute", "alluvial", "dplyr", "RColorBrewer"))'
 
 # Install Bioconductor packages
