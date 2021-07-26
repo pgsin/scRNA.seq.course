@@ -8,7 +8,11 @@ The number of computational tools is increasing rapidly and we are doing our bes
 
 ## Web page
 
-__[https://scrnaseq-course.cog.sanger.ac.uk/browser.html?shared=data/](https://scrnaseq-course.cog.sanger.ac.uk/browser.html?shared=data/)__
+__[https://www.singlecellcourse.org](https://www.singlecellcourse.org)__
+
+#### Data
+
+__[https://singlecellcourse.cog.sanger.ac.uk/index.html?shared=data/](https://singlecellcourse.cog.sanger.ac.uk/index.html?shared=data/)__
 
 ## Video
 
