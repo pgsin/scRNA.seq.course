@@ -147,72 +147,82 @@ After this, we use the two following `Seurat` commands to find integration ancho
 
 ```{r int14}
 pbmc_anchors    <- FindIntegrationAnchors(object.list = pbmc_list, dims = 1:30)
-pbmc_integrated <- IntegrateData(anchorset = pbmc_anchors, dims = 1:30)
+pbmc_seurat     <- IntegrateData(anchorset = pbmc_anchors, dims = 1:30)
 ```
 
+Let's remove all the datastructures we're not using to save the RAM:
+
+```{r int14b}
+rm(pbmc_list)
+rm(pbmc_anchors)
+```
 
 Seurat integration creates a unified object that contains both original data ('RNA' `assay`) as well as integrated data ('integrated' `assay`). Let's set the assay to RNA and visualize the datasets before integration.
 
 ```{r int15}
-DefaultAssay(pbmc_integrated) <- "RNA"
+DefaultAssay(pbmc_seurat) <- "RNA"
 ```
 
 Let's do normalization, HVG finding, scaling, PCA, and UMAP on the un-integrated (RNA) assay: 
 
 ```{r int16}
-pbmc_integrated <- NormalizeData(pbmc_integrated, verbose = F)
-pbmc_integrated <- FindVariableFeatures(pbmc_integrated, selection.method = "vst", nfeatures = 2000, verbose = F)
-pbmc_integrated <- ScaleData(pbmc_integrated, verbose = F)
-pbmc_integrated <- RunPCA(pbmc_integrated, npcs = 30, verbose = F)
-pbmc_integrated <- RunUMAP(pbmc_integrated, reduction = "pca", dims = 1:30, verbose = F)
+pbmc_seurat <- NormalizeData(pbmc_seurat, verbose = F)
+pbmc_seurat <- FindVariableFeatures(pbmc_seurat, selection.method = "vst", nfeatures = 2000, verbose = F)
+pbmc_seurat <- ScaleData(pbmc_seurat, verbose = F)
+pbmc_seurat <- RunPCA(pbmc_seurat, npcs = 30, verbose = F)
+pbmc_seurat <- RunUMAP(pbmc_seurat, reduction = "pca", dims = 1:30, verbose = F)
 ```
 
 UMAP plot of the datasets before integration shows clear separation. Note that we can use `patchwork` syntax with Seurat plotting functions:
 
 ```{r int17,fig.align="center"}
-DimPlot(pbmc_integrated,reduction = "umap") + plot_annotation(title = "10k 3' PBMC and 10k 5' PBMC cells, before integration")
+DimPlot(pbmc_seurat,reduction = "umap") + plot_annotation(title = "10k 3' PBMC and 10k 5' PBMC cells, before integration")
 ```
 
 Now let's change the assay to integrated and do the same do the same thing in the integrated assay (it's already normalized and HVGs are selected):
 
 ```{r int18}
-DefaultAssay(pbmc_integrated) <- "integrated"
-pbmc_integrated <- ScaleData(pbmc_integrated, verbose = F)
-pbmc_integrated <- RunPCA(pbmc_integrated, npcs = 30, verbose = F)
-pbmc_integrated <- RunUMAP(pbmc_integrated, reduction = "pca", dims = 1:30, verbose = F)
+DefaultAssay(pbmc_seurat) <- "integrated"
+pbmc_seurat <- ScaleData(pbmc_seurat, verbose = F)
+pbmc_seurat <- RunPCA(pbmc_seurat, npcs = 30, verbose = F)
+pbmc_seurat <- RunUMAP(pbmc_seurat, reduction = "pca", dims = 1:30, verbose = F)
 ```
 
 Finally, let's plot the integrated UMAP:
 
 ```{r int19,fig.align="center"}
-DimPlot(pbmc_integrated, reduction = "umap") + plot_annotation(title = "10k 3' PBMC and 10k 5' PBMC cells, after integration (Seurat 3)")
+DimPlot(pbmc_seurat, reduction = "umap") + plot_annotation(title = "10k 3' PBMC and 10k 5' PBMC cells, after integration (Seurat 3)")
 ```
 
 The data are visibly very nicely integrated. Let's try a split plot, which should make the comparison easier:
 
 ```{r int20,fig.align="center"}
-DimPlot(pbmc_integrated, reduction = "umap", split.by = "orig.ident") + NoLegend()
+DimPlot(pbmc_seurat, reduction = "umap", split.by = "orig.ident") + NoLegend()
 ```
 
 Now let's cluster the integrated matrix and look how clusters are distributed between the two sets: 
 
 ```{r int21,fig.align="center"}
-pbmc_integrated <- FindNeighbors(pbmc_integrated, dims = 1:30, k.param = 10, verbose = F)
-pbmc_integrated <- FindClusters(pbmc_integrated, verbose = F)
-DimPlot(pbmc_integrated,label = T) + NoLegend()
+pbmc_seurat <- FindNeighbors(pbmc_seurat, dims = 1:30, k.param = 10, verbose = F)
+pbmc_seurat <- FindClusters(pbmc_seurat, verbose = F)
+DimPlot(pbmc_seurat,label = T) + NoLegend()
 ```
 
 We can now calculate the number of cells in each cluster that came for either 3' or the 5' dataset: 
 
 ```{r int22}
-count_table <- table(pbmc_integrated@meta.data$seurat_clusters, pbmc_integrated@meta.data$orig.ident)
+count_table <- table(pbmc_seurat@meta.data$seurat_clusters, pbmc_seurat@meta.data$orig.ident)
 count_table
 ```
 
 Let's plot the distribution among clusters using our custom function:
 
 ```{r int23,fig.align="center"}
-plot_integrated_clusters(pbmc_integrated) 
+plot_integrated_clusters(pbmc_seurat) 
+```
+
+```{r int23b}
+rm(pbmc_seurat)
 ```
 
 ## Harmony, 3' vs 5' 10k PBMC
@@ -294,6 +304,10 @@ Finally, let's take a look at the cluster content:
 plot_integrated_clusters(pbmc_harmony)
 ```
 
+```{r int34b}
+rm(pbmc_harmony)
+```
+
 Clusters and their content look pretty similar to what we obtained after `Seurat` integration. For a more detailed analysis, we would need cell type assignments. 
 
 ## LIGER, 3' vs 5' 10k PBMC
@@ -339,6 +353,11 @@ The clusters look pretty different, and per-cluster distribution seems to confir
 plot_integrated_clusters(pbmc_liger)
 ```
 
+```{r int39b}
+rm(pbmc_liger)
+rm(srat_3p)
+rm(srat_5p)
+```
 
 ## Seurat v3, 3' 10k PBMC cells and whole blood STRT-Seq
 
@@ -427,6 +446,10 @@ wb_anchors <- FindIntegrationAnchors(object.list = wb_list, dims = 1:30)
 wb_seurat  <- IntegrateData(anchorset = wb_anchors, dims = 1:30)
 ```
 
+```{r int48b}
+rm(wb_list)
+rm(wb_anchors)
+```
 
 Let's do the basic processing and visualization of the uncorrected dataset: 
 
@@ -488,6 +511,10 @@ table(meta[meta$seurat_clusters == '5',]$cell_type) ## erythrocytes
 table(meta[meta$seurat_clusters == '20',]$cell_type) ## neutrophils
 table(meta[meta$seurat_clusters == '24',]$cell_type) ## plasma
 table(meta[meta$seurat_clusters == '16',]$cell_type) ## platelets
+```
+
+```{r int55b}
+rm(wb_seurat)
 ```
 
 ## Harmony, 3' 10k PBMC cells and whole blood STRT-Seq
@@ -569,6 +596,10 @@ More detailed cluster examination also seems to confirm this:
 plot_integrated_clusters(wb_harmony) 
 ```
 
+```{r int65b}
+rm(wb_harmony)
+```
+
 ## LIGER, 3' 10k PBMC cells and whole blood STRT-Seq
 
 Finally, let's do data integration with `LIGER`. This step takes several minutes to run: 
@@ -604,6 +635,12 @@ Finally, a look at distribution of datasets per cluster:
 
 ```{r int69,fig.align="center"}
 plot_integrated_clusters(wb_liger)
+```
+
+```{r int69b}
+rm(wb_liger)
+rm(srat_wb)
+rm(srat_3p)
 ```
 
 ### sessionInfo()
