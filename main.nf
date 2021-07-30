@@ -3,11 +3,11 @@ Channel
     .set { ch_course_files }
 
 Channel
-    .fromPath('s3://scrnaseq-course/data/', checkIfExists: false)
+    .fromPath('s3://singlecellcourse/data/', checkIfExists: false)
     .set { ch_data }
 
 Channel
-    .fromPath('s3://scrnaseq-course/_bookdown_files/', checkIfExists: false)
+    .fromPath('s3://singlecellcourse/_bookdown_files/', checkIfExists: false)
     .set { ch_cached_files }
 
 process html {
@@ -27,7 +27,7 @@ process html {
   cp -r course_dir/* course_dir_work
   cd course_dir_work
   ln -s ../_bookdown_files .
-  Rscript -e "bookdown::render_book('index.html', 'bookdown::gitbook')"
+  Rscript -e "bookdown::render_book('index.Rmd', 'bookdown::gitbook')"
   '''
 }
 

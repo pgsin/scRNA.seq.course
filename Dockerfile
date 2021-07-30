@@ -3,20 +3,12 @@ FROM jupyter/base-notebook
 # versions of software
 ARG r_cran_version="cran40"
 ARG rstudio_version="1.2.5019"
-ARG fastqc_version="0.11.9"            
-ARG kallisto_version="0.46.2"          
-ARG samtools_version="1.11"            
-ARG trimgalore_version="0.6.6"         
-ARG bedtools_version="2.29.2"           
-ARG featurecounts_version="2.0.1"       
-
-#old software verions
-#fastqc=0.11.5
-#kallisto=0.43.1
-#samtools=1.9
-#trimgalore=0.4.5
-#bedtools=2.27.1
-#featurecounts=1.5.1
+ARG fastqc_version="0.11.9"
+ARG kallisto_version="0.46.2"
+ARG samtools_version="1.11"
+ARG trimgalore_version="0.6.6"
+ARG bedtools_version="2.29.2"
+ARG featurecounts_version="2.0.1"
 
 USER root
 
@@ -139,30 +131,34 @@ RUN Rscript -e 'install.packages(c( \
     "snow", "bit64", "permute", "mixtools", "lars", "ica", "fpc", "ape", \
     "pbapply", "irlba", "dtw", "plotly", "metap", "lmtest", "fitdistrplus", "png", \
     "foreach", "vegan", "tidyr", "withr", "magrittr", "rmpi", "knitr", \
-    "statmod", "mvoutlier", "penalized", "mgcv", "corrplot", \
-    "lsa", "uwot", "optparse", "DrImpute", "alluvial"))'
+    "statmod", "mvoutlier", "penalized", "mgcv", "corrplot", "scales", "rliger", \
+    "lsa", "uwot", "optparse", "DrImpute", "alluvial", "dplyr", "RColorBrewer"))'
 
 # Install Bioconductor packages
 RUN Rscript -e 'BiocManager::install(c( \
     "graph", "RBGL", "gtools", "xtable", "pcaMethods", "limma", "SingleCellExperiment", \
     "Rhdf5lib", "scater", "scran", "RUVSeq", "sva", "SC3", "TSCAN", "monocle", "destiny", \
     "DESeq2", "edgeR", "MAST", "scmap", "biomaRt", "MultiAssayExperiment", "SummarizedExperiment", \
-    "beachmat", "DropletUtils", "EnsDb.Hsapiens.v86", "batchelor"))'
+    "beachmat", "DropletUtils", "EnsDb.Hsapiens.v86", "batchelor", "SingleR", "celldex", \
+    "glmGamPoi", "AnnotationDbi", "org.Hs.eg.db", "EnsDb.Hsapiens.v86"))'
 
 # Install github packages
 RUN Rscript -e 'devtools::install_github(c( \
     "immunogenomics/harmony", "tallulandrews/M3Drop", "hemberg-lab/scRNA.seq.funcs", \
     "Vivianstats/scImpute", "theislab/kBET", "kieranrcampbell/ouija", "hemberg-lab/scfind", \
-    "cole-trapnell-lab/monocle3"))'
+    "cole-trapnell-lab/monocle3", "mojaveazure/seurat-disk", "satijalab/seurat-wrappers"))'
 
 # Install python packages
 RUN pip install --upgrade --no-cache \
     cutadapt magic-impute awscli==1.16.14 \
     jupyter-server-proxy \
-    jupyter-rsession-proxy rpy2
+    jupyter-rsession-proxy rpy2 \
+    leidenalg
 
 # JupyterLab extension to launch registered applications in the python package
 RUN jupyter labextension install @jupyterlab/server-proxy
+
+RUN conda clean --all --yes
 
 # fix permissions
 RUN fix-permissions $CONDA_DIR && \

@@ -174,7 +174,8 @@ as.logical(y)
 z = 0
 as.logical(z)
 ```
-__Exercise 1__
+**Exercise 1**
+
 Experiment with other character and numeric values, which are coerced to TRUE or FALSE? which are coerced to neither? 
 Do you ever throw a warning/error message?
 
@@ -203,19 +204,20 @@ as.numeric(x)
 as.numeric(as.character(x))
 ```
 
-To make R read text as character data instead of factors set the environment option `stringsAsFactors=FALSE`. This must be done at the start of each R session.
+In R versions before 4.0, you had set the environment option `stringsAsFactors=FALSE` to read text as character data instead of factors. This had to be done at the start of each R session. Starting with version 4.0, this option is set by default. You can set `stringsAsFactors=TRUE` in functions like `read.csv` and `read.table`, if this is the desired behaviour. 
 
-```{r Intro-R20}
-options(stringsAsFactors=FALSE)
-```
-__Exercise__
+**Exercise 2**
 How would you use factors to create a vector of colours for an arbitrarily long vector of fruits like `str_vector` above?
-__Answer__
-```{r Intro-R21, include=FALSE}
+
+<details><summary>Answer</summary>
+
+```{r Intro-R21}
 long_str_vector = c(str_vector, str_vector, str_vector)
 fruit_cols = c("red", "yellow", "orange")
 fruit_colour_vec = fruit_cols[as.numeric(factor(long_str_vector, levels=c("Apple", "Banana", "Carrot")))]
 ```
+
+</details>
 
 ### Checking class/type
 We recommend checking your data is of the correct class after reading from files:

@@ -4,8 +4,14 @@ output: html_document
 
 # Resources
 
-## scRNA-seq protocols
+## Orchestrating Single-Cell Analysis with Bioconductor
 
+[OSCA](http://bioconductor.org/books/release/OSCA/)
+
+## scRNA-seq Protocols
+
+* [10x Chromium](https://www.10xgenomics.com/products/single-cell-gene-expression)
+* [Single Cell Genomics Library Structure](https://teichlab.github.io/scg_lib_structs/)
 * [SMART-seq2](http://www.nature.com/nmeth/journal/v10/n11/full/nmeth.2639.html)
 * [CELL-seq](http://www.cell.com/cell-reports/abstract/S2211-1247%2812%2900228-8)
 * [Drop-seq](http://mccarrolllab.com/dropseq/)
@@ -26,6 +32,12 @@ Tallulah Andrews' single cell processing scripts:
 
 * [scRNASeqPipeline](https://github.com/tallulandrews/scRNASeqPipeline)
 
+Various tools from 10x Genomics: 
+
+* [Cell Ranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger)
+* [Space Ranger](https://support.10xgenomics.com/spatial-gene-expression/software/pipelines/latest/installation)
+
 ## scRNA-seq public datasets
 
 * [Hemberg group's public datasets](https://hemberg-lab.github.io/scRNA.seq.datasets/)
+* [scRNAseq R package - 64 public datasets](https://bioconductor.org/packages/release/data/experiment/html/scRNAseq.html)

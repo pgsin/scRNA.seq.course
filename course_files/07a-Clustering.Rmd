@@ -2,12 +2,102 @@
 output: html_document
 ---
 
-## Clustering example {#clust-methods}
+# Biological Analysis
 
-```{r clustering0, echo=FALSE}
+## Clustering Introduction
+
+```{r clust-intro0, echo=FALSE}
 library(knitr)
-opts_chunk$set(cache = TRUE, fig.align = "center")
+opts_chunk$set(cache = TRUE, fig.align = "center", echo=FALSE)
 ```
+
+Once we have normalized the data and removed confounders we can carry out analyses that are relevant to the biological questions at hand. The exact nature of the analysis depends on the dataset. Nevertheless, there are a few aspects that are useful in a wide range of contexts and we will be discussing some of them in the next few chapters. We will start with the clustering of scRNA-seq data.
+
+### Introduction
+
+One of the most promising applications of scRNA-seq is _de novo_ discovery and annotation of cell-types based on transcription profiles. Computationally, this is a hard problem as it amounts to __unsupervised clustering__. That is, we need to identify groups of cells based on the similarities of the transcriptomes without any prior knowledge of the labels. Moreover, in most situations we do not even know the number of clusters _a priori_. The problem is made even more challenging due to the high level of noise (both technical and biological) and the large number of dimensions (i.e. genes). 
+
+### Dimensionality reductions
+
+When working with large datasets, it can often be beneficial to apply some sort of dimensionality reduction method. By projecting the data onto a lower-dimensional sub-space, one is often able to significantly reduce the amount of noise. An additional benefit is that it is typically much easier to visualize the data in a 2 or 3-dimensional subspace. We have already discussed PCA (chapter \@ref(visual-pca)) and t-SNE (chapter \@ref(visual-pca)).
+
+### Clustering methods
+
+__Unsupervised clustering__ is useful in many different applications and it has been widely studied in machine learning. Some of the most popular approaches are __hierarchical clustering__, __k-means clustering__ and __graph-based clustering__.
+
+#### Hierarchical clustering
+
+In [hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering), one can use either a bottom-up or a top-down approach. In the former case, each cell is initially assigned to its own cluster and pairs of clusters are subsequently merged to create a hieararchy:
+
+```{r clust-intro1, fig.align="center", out.width = '80%', fig.cap="Raw data"}
+knitr::include_graphics("figures/hierarchical_clustering1.png")
+```
+
+```{r clust-intro2, fig.align="center", out.width = '80%', fig.cap="The hierarchical clustering dendrogram"}
+knitr::include_graphics("figures/hierarchical_clustering2.png")
+```
+
+With a top-down strategy, one instead starts with all observations in one cluster and then recursively split each cluster to form a hierarchy. One of the advantages of this strategy is that the method is deterministic.
+
+#### k-means
+
+In [_k_-means clustering](https://en.wikipedia.org/wiki/K-means_clustering), the goal is to partition _N_ objects (cells) into _k_ different clusters. In an iterative manner, cluster centers are assigned and each cell is assigned to its nearest cluster:
+
+```{r clust-intro3, out.width = '100%', fig.cap="Schematic representation of the k-means clustering"}
+knitr::include_graphics("figures/k-means.png")
+```
+
+Most methods for scRNA-seq analysis includes a _k_-means step at some point.
+
+#### Graph-based methods
+
+Over the last two decades there has been a lot of interest in analyzing networks in various domains. One goal is to identify group or modules of nodes in a network.
+
+```{r clust-intro4, out.width = '100%', fig.cap="Schematic representation of the graph network"}
+knitr::include_graphics("figures/graph_network.jpg")
+```
+
+Some of these methods can be applied to scRNA-seq data by building a graph where each node represents a cell. Note that constructing the graph and assigning weights to the edges is not trivial. One advantage of graph-based methods is that some of them are very computationally efficient and can be applied to networks containing millions of nodes.
+
+### Challenges in clustering
+
+  * What is the number of clusters _k_?
+  * What is a cell type?
+  * __Scalability__: in the last few years the number of cells in scRNA-seq experiments has grown by several orders of magnitude from ~$10^2$ to ~$10^6$
+  * Tools can be not user-friendly
+
+### Tools for scRNA-seq data
+
+#### [SINCERA](https://research.cchmc.org/pbge/sincera.html)
+
+* SINCERA [@Guo2015-ok] is based on hierarchical clustering
+* Data is converted to _z_-scores before clustering
+* Identify _k_ by finding the first singleton cluster in the hierarchy
+
+#### [SC3](http://bioconductor.org/packages/SC3/)
+
+```{r clust-intro5, out.width = '100%', fig.cap="SC3 pipeline"}
+knitr::include_graphics("figures/sc3.png")
+```
+
+* SC3 [@Kiselev2016-bq] is based on PCA and spectral dimensionality reductions
+* Utilises _k_-means
+* Additionally performs the consensus clustering
+
+#### tSNE + k-means
+
+* Based on __tSNE__ maps
+* Utilises _k_-means
+
+#### Seurat clustering
+
+[`Seurat`](https://github.com/satijalab/seurat) clustering is based on a _community detection_ approach similar to `SNN-Cliq` and to one previously proposed for analyzing CyTOF data [@Levine2015-fk]. Since `Seurat` has become more like an all-in-one tool for scRNA-seq data analysis we dedicate a separate chapter to discuss it in more details (see below).
+
+### Comparing clustering
+
+To compare two sets of clustering labels we can use [adjusted Rand index](https://en.wikipedia.org/wiki/Rand_index). The index is a measure of the similarity between two data clusterings. Values of the adjusted Rand index lie in $[0;1]$ interval, where $1$ means that two clusterings are identical and $0$ means the level of similarity expected by chance.
+
+## Clustering example {#clust-methods}
 
 ```{r clustering1, echo=TRUE, message=FALSE, warning=FALSE}
 library(pcaMethods)
@@ -24,21 +114,24 @@ To illustrate clustering of scRNA-seq data, we consider the `Deng` dataset of ce
 ### Deng dataset
 
 Let's load the data and look at it:
+
 ```{r clustering2}
 deng <- readRDS("data/deng/deng-reads.rds")
 ```
 
 Let's look at the cell type annotation:
+
 ```{r clustering3}
 table(colData(deng)$cell_type2)
 ```
 
 A simple PCA analysis already separates some strong cell types and provides some insights in the data structure:
+
 ```{r clustering4}
-### NEEDED TO ADD runPCA AS NO reducedDimNames ASSAY CALLED PCA IN OBJECT 
 deng <- runPCA(deng)
 plotPCA(deng, colour_by = "cell_type2")
 ```
+
 As you can see, the early cell types separate quite well, but the three blastocyst timepoints are more difficult to distinguish.
 
 ### SC3
@@ -46,17 +139,20 @@ As you can see, the early cell types separate quite well, but the three blastocy
 Let's run `SC3` clustering on the Deng data. The advantage of the `SC3` is that it can directly ingest a `SingleCellExperiment` object.
 
 Now let's image we do not know the number of clusters _k_ (cell types). `SC3` can estimate a number of clusters for you:
+
 ```{r clustering5}
 deng <- sc3_estimate_k(deng)
 metadata(deng)$sc3$k_estimation
 ```
 
-Interestingly, the number of cell types predicted by `SC3` is smaller than in the original data annotation. However, early, mid and late stages of different cell types together, we will have exactly 6 cell types. We store the merged cell types in `cell_type1` column of the `colData` slot:
+Interestingly, the number of cell types predicted by `SC3` is smaller than in the original data annotation. However, if early, mid and late stages of different cell types are combined together, we will have exactly 6 cell types. We store the merged cell types in `cell_type1` column of the `colData` slot:
+
 ```{r clustering6}
 plotPCA(deng, colour_by = "cell_type1")
 ```
 
-Now we are ready to run `SC3` (we also ask it to calculate biological properties of the clusters): 
+Now we are ready to run `SC3` (we also ask it to calculate biological properties of the clusters):
+
 ```{r clustering7}
 deng <- sc3(deng, ks = 10, biology = TRUE, n_cores = 1)
 ```
@@ -64,36 +160,43 @@ deng <- sc3(deng, ks = 10, biology = TRUE, n_cores = 1)
 `SC3` result consists of several different outputs (please look in [@Kiselev2016-bq] and [SC3 vignette](http://bioconductor.org/packages/release/bioc/vignettes/SC3/inst/doc/my-vignette.html) for more details). Here we show some of them:
 
 Consensus matrix:
+
 ```{r clustering8, fig.height=6}
 sc3_plot_consensus(deng, k = 10, show_pdata = "cell_type2")
 ```
 
 Silhouette plot:
+
 ```{r clustering9, fig.height=9}
 sc3_plot_silhouette(deng, k = 10)
 ```
 
 Heatmap of the expression matrix:
+
 ```{r clustering10, fig.height=6}
 sc3_plot_expression(deng, k = 10, show_pdata = "cell_type2")
 ```
 
 Identified marker genes:
+
 ```{r clustering11, fig.height=11}
 sc3_plot_markers(deng, k = 10, show_pdata = "cell_type2")
 ```
 
 PCA plot with highlighted `SC3` clusters:
+
 ```{r clustering12}
 plotPCA(deng, colour_by = "sc3_10_clusters")
 ```
 
 Compare the results of `SC3` clustering with the original publication cell type labels:
+
 ```{r clustering13}
 adjustedRandIndex(colData(deng)$cell_type2, colData(deng)$sc3_10_clusters)
 ```
 
 __Note__ `SC3` can also be run in an interactive `Shiny` session:
+
 ```{r clustering14, eval=FALSE}
 ### LOADS BROWSER BUT COULDN'T ACCESS
 sc3_interactive(deng)
@@ -139,9 +242,7 @@ colData(deng)$tSNE_kmeans <- as.character(kmeans(reducedDim(deng, "TSNE"), cente
 adjustedRandIndex(colData(deng)$cell_type2, colData(deng)$tSNE_kmeans)
 ```
 
-As you may have noticed, `tSNE+kmeans` is stochastic
-and gives different results every time they are run. To get a better
-overview of the solutions, we need to run the methods multiple times. `SC3` is also stochastic, but thanks to the consensus step, it is more robust and less likely to produce different outcomes.
+As you may have noticed, `tSNE+kmeans` is stochastic and gives different results every time they are run. To get a better overview of the solutions, we need to run the methods multiple times. `SC3` is also stochastic, but thanks to the consensus step, it is more robust and less likely to produce different outcomes.
 
 ### SINCERA
 
@@ -160,7 +261,8 @@ dd <- as.dist((1 - cor(t(dat), method = "pearson"))/2)
 hc <- hclust(dd, method = "average")
 ```
 
-If the number of cluster is not known [SINCERA](https://research.cchmc.org/pbge/sincera.html) can identify __k__ as the minimum height of the hierarchical tree that generates no more than a specified number of singleton clusters (clusters containing only 1 cell)
+If the number of cluster is not known [SINCERA](https://research.cchmc.org/pbge/sincera.html) can identify __k__ as the minimum height of the hierarchical tree that generates no more than a specified number of singleton clusters (clusters containing only 1 cell): 
+
 ```{r clustering20, echo=TRUE}
 num.singleton <- 0
 kk <- 1
@@ -178,6 +280,7 @@ cat(kk)
 ```
 
 Let's now visualize the SINCERA results as a heatmap:
+
 ```{r clustering21, fig.cap = "Clustering solutions of SINCERA method using found $k$"}
 pheatmap(
     t(dat),
@@ -191,6 +294,7 @@ pheatmap(
 __Exercise 10__: Compare the results between `SINCERA` and the original publication cell types.
 
 __Our solution__:
+
 ```{r clustering22, echo=FALSE}
 colData(deng)$SINCERA <- as.character(cutree(hc, k = kk))
 adjustedRandIndex(colData(deng)$cell_type2, colData(deng)$SINCERA)
@@ -200,6 +304,9 @@ __Exercise 11__: Is using the singleton cluster criteria for finding __k__ a goo
 
 ### sessionInfo()
 
-```{r clustering23, echo=FALSE}
+<details><summary>View session info</summary>
+```{r echo=FALSE}
 sessionInfo()
 ```
+</details>
+
