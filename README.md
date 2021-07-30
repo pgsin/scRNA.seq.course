@@ -10,6 +10,10 @@ The number of computational tools is increasing rapidly and we are doing our bes
 
 __[https://www.singlecellcourse.org](https://www.singlecellcourse.org)__
 
+#### Data
+
+__[https://singlecellcourse.cog.sanger.ac.uk/data/](https://singlecellcourse.cog.sanger.ac.uk/data/)__
+
 ## Video
 
 This video was recorded during the course (2 days) in May 2019.
@@ -28,15 +32,15 @@ Please follow this link and register for the __"Analysis of single cell RNA-seq 
 
 ## Docker image
 
-[![Docker Repository on Quay](https://quay.io/repository/hemberg-group/scrna-seq-course/status "Docker Repository on Quay")](https://quay.io/repository/hemberg-group/scrna-seq-course)
+[![Docker Repository on Quay](https://quay.io/repository/cellgeni/scrna-seq-course/status "Docker Repository on Quay")](https://quay.io/repository/cellgeni/scrna-seq-course)
 
 The course can be reproduced without any package installation by running the course docker image which contains all the required packages.
 
 ### Run the image
-Make sure Docker is installed on your system. If not, please follow [these instructions](https://docs.docker.com/engine/installation/). To run the course docker image (use [the latest version](https://quay.io/repository/hemberg-group/scrna-seq-course?tab=tags) of the course instead of v3.13):
+Make sure Docker is installed on your system. If not, please follow [these instructions](https://docs.docker.com/engine/installation/). To run the course docker image (use [the latest version](https://quay.io/repository/cellgeni/scrna-seq-course?tab=tags) of the course instead of v5.14):
 
 ```
-docker run -p 8888:8888 -e PASSWORD="jupyter" quay.io/hemberg-group/scrna-seq-course:v3.13
+docker run -p 8888:8888 -e PASSWORD="jupyter" quay.io/cellgeni/scrna-seq-course:v5.14
 ```
 
 Then follow the instructions provided, e.g.:
@@ -65,7 +69,7 @@ Please click on `New -> Terminal`. In the new terminal window please run:
 
 If you want to download data files outside of Docker image you can still use the same `poststart.sh` script but you will need to install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html) on your computer.
 
-Alternatively, you can browse and download the files in you web-browser by visiting [this link](https://scrnaseq-course.cog.sanger.ac.uk/index.html?prefix=data/).
+Alternatively, you can browse and download the files in you web-browser by visiting [this link](https://singlecellcourse.cog.sanger.ac.uk/index.html?shared=data/).
 
 ### RStudio
 
