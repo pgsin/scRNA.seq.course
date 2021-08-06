@@ -6,6 +6,8 @@ In this course we will discuss some of the questions that can be addressed using
 
 The number of computational tools is increasing rapidly and we are doing our best to keep up to date with what is available. One of the main constraints for this course is that we would like to use tools that are implemented in R and that run reasonably fast. Moreover, we will also confess to being somewhat biased towards methods that have been developed either by us or by our friends and colleagues. 
 
+**Note that currently (second half of 2021) the course is being actively updated, and the content will change significantly without further notice.**
+
 ## Web page
 
 __[https://www.singlecellcourse.org](https://www.singlecellcourse.org)__
@@ -16,7 +18,7 @@ __[https://singlecellcourse.cog.sanger.ac.uk/data/](https://singlecellcourse.cog
 
 ## Video
 
-This video was recorded during the course (2 days) in May 2019.
+This video was recorded during the course (2 days) in May 2019. **The content will not match the updates that happened in 2021. New videos will be uploaded when available.**
 
 __[Day 1](https://www.youtube.com/watch?v=thHgPqQpkE4)__
 
@@ -92,6 +94,10 @@ We will also assume that you are familiar with mapping and analysing bulk RNA-se
 
 We recommend attending the [Introduction to RNA-seq and ChIP-seq data analysis](http://training.csx.cam.ac.uk/bioinformatics/search) or the [Analysis of high-throughput sequencing data with Bioconductor](http://training.csx.cam.ac.uk/bioinformatics/search) before attending this course.
 
+## Citation
+
+Please cite [Tutorial: guidelines for the computational analysis of single-cell RNA sequencing data](https://www.nature.com/articles/s41596-020-00409-w),*Nature Protocols*, **2021**.
+
 ## Contact
 
-If you have any __comments__, __questions__ or __suggestions__ about the material, please contact <a href="mailto:vladimir.yu.kiselev@gmail.com">Vladimir Kiselev</a>.
+If you have any __comments__, __questions__ or __suggestions__ about the material, please contact <a href="mailto:predeus@gmail.com">Alexander Predeus</a> or <a href="mailto:hm533@cam.ac.uk">Hugo Tavares</a>.
