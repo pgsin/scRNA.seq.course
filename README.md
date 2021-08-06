@@ -14,7 +14,7 @@ __[https://www.singlecellcourse.org](https://www.singlecellcourse.org)__
 
 #### Data
 
-__[https://singlecellcourse.cog.sanger.ac.uk/data/](https://singlecellcourse.cog.sanger.ac.uk/data/)__
+__[https://www.singlecellcourse.org/data/](https://singlecellcourse.org/data/)__
 
 ## Video
 
@@ -34,7 +34,7 @@ Please follow this link and register for the __"Analysis of single cell RNA-seq 
 
 ## Docker image
 
-[![Docker Repository on Quay](https://quay.io/repository/cellgeni/scrna-seq-course/status "Docker Repository on Quay")](https://quay.io/repository/cellgeni/scrna-seq-course)
+[![Docker Repository on Quay](https://img.shields.io/badge/container-quay.io-brightgreen)](https://quay.io/repository/cellgeni/scrna-seq-course?tab=tags)
 
 The course can be reproduced without any package installation by running the course docker image which contains all the required packages.
 
@@ -71,7 +71,7 @@ Please click on `New -> Terminal`. In the new terminal window please run:
 
 If you want to download data files outside of Docker image you can still use the same `poststart.sh` script but you will need to install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html) on your computer.
 
-Alternatively, you can browse and download the files in you web-browser by visiting [this link](https://singlecellcourse.cog.sanger.ac.uk/index.html?shared=data/).
+Alternatively, you can browse and download the files in you web-browser by visiting [this link](https://www.singlecellcourse.org/data/).
 
 ### RStudio
 
