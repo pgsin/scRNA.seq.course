@@ -6,6 +6,15 @@ output: html_document
 
 ```{r Intro0, echo=FALSE}
 library(knitr)
+
+
+
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("SingleCellExperiment")
+BiocManager::install("scater")
+
 opts_chunk$set(cache = TRUE, fig.align = "center", echo=TRUE)
 ```
 
@@ -109,7 +118,6 @@ tung_annotation <- read.table("data/tung/annotation.txt", sep = "\t", header = T
 We can now create a `SingleCellExperiment` object using the function of the same name:
 
 ```{r, message=FALSE, warning=FALSE}
-# load the library
 library(SingleCellExperiment)
 
 # note that the data passed to the assay slot has to be a matrix!
@@ -530,6 +538,7 @@ What if we wanted to visualise the distribution of expression of a particular ge
 For example, the same plot as above could have been done directly from our `tung` SCE object:
 
 ```{r}
+
 library(scater)
 ggcells(tung, aes(x = batch, y = total_counts)) + 
   geom_violin(fill = 'orange') + theme_bw() + 
